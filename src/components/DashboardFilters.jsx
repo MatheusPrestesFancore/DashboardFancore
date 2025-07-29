@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'; 
+import React, { useMemo } from 'react';
 
 const DashboardFilters = ({ data, filters, setFilters }) => {
   const responsaveis = useMemo(() => ['Todos', ...new Set(data.map(d => d['Responsável']).filter(Boolean))], [data]);
@@ -36,4 +36,4 @@ const DashboardFilters = ({ data, filters, setFilters }) => {
   );
 };
 
-export default DashboardFilters; 
+export default DashboardFilters;
