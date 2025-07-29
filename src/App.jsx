@@ -11,7 +11,7 @@ import { Users, Target, MessageSquare, Clock, TrendingUp, CheckCircle, Phone, Ma
 // 4. No menu suspenso, escolha "Valores separados por vírgula (.csv)".
 // 5. Clique em "Publicar" e copie o link gerado.
 // ====================================================================================
-const GOOGLE_SHEET_CSV_URL = 'COLE_SEU_URL_AQUI';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pubhtml?gid=1495728090&single=true';
 
 // Palavras-chave para identificar interesse
 const KEYWORDS_INTEREST = ["quero", "vamos", "topo", "agendar", "sim", "tenho interesse", "pode ser", "claro", "gostaria"];
