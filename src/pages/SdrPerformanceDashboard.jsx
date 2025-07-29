@@ -1,5 +1,5 @@
-import React from 'react'; 
-import KpiCard from '../components/KpiCard'; 
+import React from 'react';
+import KpiCard from '../components/KpiCard';
 
 const SdrPerformanceDashboard = ({ data }) => {
   const leads = data.length;
@@ -34,4 +34,4 @@ const SdrPerformanceDashboard = ({ data }) => {
   );
 };
 
-export default SdrPerformanceDashboard; 
+export default SdrPerformanceDashboard;
