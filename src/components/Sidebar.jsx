@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from 'react';
 import { LayoutDashboard, Users, GitBranch } from 'lucide-react';
 
 const NavItem = ({ page, activePage, setActivePage, icon, children }) => (
@@ -23,4 +23,4 @@ const Sidebar = ({ activePage, setActivePage }) => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;
