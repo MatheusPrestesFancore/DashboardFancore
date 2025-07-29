@@ -1,7 +1,10 @@
-import React from 'react'; 
+import React from 'react';
 import KpiCard from '../components/KpiCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { MessageSquare, TrendingUp, CheckCircle } from 'lucide-react';
+
+// Palavras-chave precisam de ser definidas aqui também ou importadas de um ficheiro de config
+const KEYWORDS_INTEREST = ["quero", "vamos", "topo", "agendar", "sim", "tenho interesse", "pode ser", "claro", "gostaria"];
 
 const AutomationDashboard = ({ data }) => {
   const totalLeads = data.length;
@@ -53,4 +56,4 @@ const AutomationDashboard = ({ data }) => {
   );
 };
 
-export default AutomationDashboard; 
+export default AutomationDashboard;
