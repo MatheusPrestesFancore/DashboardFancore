@@ -3,15 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Users, Target, MessageSquare, Clock, TrendingUp, CheckCircle, Phone, Mail, User } from 'lucide-react';
 
 // ====================================================================================
-// CONFIGURAÇÃO PRINCIPAL - COLE AQUI O URL DA SUA PLANILHA
-// Para obter o URL:
-// 1. Abra a sua planilha do Google Sheets.
-// 2. Vá em "Arquivo" > "Compartilhar" > "Publicar na web".
-// 3. Na janela que abrir, selecione a aba "Dashboard_Data".
-// 4. No menu suspenso, escolha "Valores separados por vírgula (.csv)".
-// 5. Clique em "Publicar" e copie o link gerado.
+// CONFIGURAÇÃO PRINCIPAL - URL DA SUA PLANILHA
 // ====================================================================================
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pubhtml?gid=1495728090&single=true';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 
 // Palavras-chave para identificar interesse
 const KEYWORDS_INTEREST = ["quero", "vamos", "topo", "agendar", "sim", "tenho interesse", "pode ser", "claro", "gostaria"];
@@ -86,7 +80,7 @@ const RecentLeadsTable = ({ data }) => {
                 </td>
                 <td className="px-4 py-4 font-medium text-white">{lead['Nome_Lead']}</td>
                 <td className="px-4 py-4">
-                  <span className={`px-2 py-1 text-xs rounded-full ${lead['Agendado'] === 'TRUE' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
+                  <span className={`px-2 py-1 text-xs rounded-full ${lead['Agendado']?.toUpperCase() === 'TRUE' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}`}>
                     {lead['Etapa Atual']}
                   </span>
                 </td>
@@ -117,25 +111,37 @@ export default function App() {
     fetch(GOOGLE_SHEET_CSV_URL)
       .then(response => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('A resposta da rede não foi OK');
         }
         return response.text();
       })
       .then(csvText => {
         const lines = csvText.split('\n');
-        const headers = lines[0].split(',').map(h => h.trim());
+        // Lógica de parsing mais robusta para os cabeçalhos
+        const headers = lines[0].split(',').map(header => header.trim().replace(/\r/g, ''));
+        
         const jsonData = lines.slice(1).map(line => {
+          // Lógica de parsing simples, assume que não há vírgulas nos dados
           const values = line.split(',');
-          return headers.reduce((obj, header, index) => {
-            obj[header] = values[index] ? values[index].trim() : '';
-            return obj;
-          }, {});
+          const obj = {};
+          headers.forEach((header, index) => {
+            // Limpa cada valor para remover espaços e \r
+            const value = values[index] ? values[index].trim().replace(/\r/g, '') : '';
+            obj[header] = value;
+          });
+          return obj;
         });
+
+        // Para depuração: Verifique o primeiro objeto de dados no console do browser (F12)
+        if (jsonData.length > 0) {
+          console.log("Exemplo do primeiro lead carregado:", jsonData[0]);
+        }
+
         setData(jsonData);
         setLoading(false);
       })
       .catch(err => {
-        setError('Falha ao carregar os dados da planilha. Verifique o URL e as permissões de partilha.');
+        setError('Falha ao carregar os dados da planilha. Verifique o URL e as permissões de partilha (publicar na web).');
         console.error(err);
         setLoading(false);
       });
@@ -144,7 +150,9 @@ export default function App() {
   // Cálculos das métricas
   const totalLeads = data.length;
   const leadsComResposta = data.filter(d => d['Data_Resposta_Msg']).length;
-  const leadsAgendados = data.filter(d => d['Agendado'] === 'TRUE').length;
+  // **CORREÇÃO APLICADA AQUI**
+  // A verificação agora é case-insensitive (ignora maiúsculas/minúsculas).
+  const leadsAgendados = data.filter(d => d['Agendado']?.toUpperCase() === 'TRUE').length;
   
   const leadsComInteresse = data.reduce((acc, lead) => {
     const resposta = lead['Conteudo_Resposta']?.toLowerCase() || '';
