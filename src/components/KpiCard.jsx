@@ -1,4 +1,4 @@
-import React from 'react'; 
+import React from 'react';
 
 const KpiCard = ({ title, value, icon, unit = '', color, small = false }) => (
   <div className={`bg-gray-800 p-4 rounded-lg shadow-lg flex ${small ? 'flex-col items-center text-center' : 'items-center space-x-4'}`}>
@@ -12,4 +12,4 @@ const KpiCard = ({ title, value, icon, unit = '', color, small = false }) => (
   </div>
 );
 
-export default KpiCard; 
+export default KpiCard;
