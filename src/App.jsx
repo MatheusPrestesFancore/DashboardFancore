@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Users, Target, MessageSquare, Clock, TrendingUp, CheckCircle, Phone, Mail, User } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Users, Filter, MessageSquare, TrendingUp, CheckCircle, User, Calendar, Flag } from 'lucide-react';
 
 // ====================================================================================
 // CONFIGURAÇÃO PRINCIPAL - URL DA SUA PLANILHA
@@ -46,7 +46,7 @@ const FunnelChart = ({ data }) => {
             contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }}
             cursor={{ fill: 'rgba(147, 197, 253, 0.1)' }}
           />
-          <Legend />
+          <Legend wrapperStyle={{ color: '#A0AEC0' }} />
           <Bar dataKey="value" name="Leads" fill="#60A5FA" barSize={30} />
         </BarChart>
       </ResponsiveContainer>
@@ -56,11 +56,11 @@ const FunnelChart = ({ data }) => {
 
 // Componente para a tabela de leads recentes
 const RecentLeadsTable = ({ data }) => {
-  const recentLeads = data.slice().sort((a, b) => new Date(b.Data_Criacao) - new Date(a.Data_Criacao)).slice(0, 5);
+  const recentLeads = data.slice(0, 5);
 
   return (
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h3 className="text-lg font-semibold text-white mb-4">Atividade Recente</h3>
+      <h3 className="text-lg font-semibold text-white mb-4">Atividade Recente (Filtrada)</h3>
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left text-gray-400">
           <thead className="text-xs text-gray-300 uppercase bg-gray-700">
@@ -94,50 +94,73 @@ const RecentLeadsTable = ({ data }) => {
   );
 };
 
+// Componente para os filtros
+const DashboardFilters = ({ data, filters, setFilters }) => {
+  const responsaveis = useMemo(() => ['Todos', ...new Set(data.map(d => d['Responsável']).filter(Boolean))], [data]);
+  const etapas = useMemo(() => ['Todas', ...new Set(data.map(d => d['Etapa Atual']).filter(Boolean))], [data]);
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  return (
+    <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+        <div>
+          <label htmlFor="responsavel" className="block text-sm font-medium text-gray-400 mb-1">Responsável</label>
+          <select id="responsavel" value={filters.responsavel} onChange={e => handleFilterChange('responsavel', e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {responsaveis.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="etapa" className="block text-sm font-medium text-gray-400 mb-1">Etapa Atual</label>
+          <select id="etapa" value={filters.etapa} onChange={e => handleFilterChange('etapa', e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {etapas.map(e => <option key={e} value={e}>{e}</option>)}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="startDate" className="block text-sm font-medium text-gray-400 mb-1">Data de Início</label>
+          <input type="date" id="startDate" value={filters.startDate} onChange={e => handleFilterChange('startDate', e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label htmlFor="endDate" className="block text-sm font-medium text-gray-400 mb-1">Data de Fim</label>
+          <input type="date" id="endDate" value={filters.endDate} onChange={e => handleFilterChange('endDate', e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 // Componente principal do App
 export default function App() {
-  const [data, setData] = useState([]);
+  const [allData, setAllData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    responsavel: 'Todos',
+    etapa: 'Todas',
+    startDate: '',
+    endDate: '',
+  });
 
   useEffect(() => {
-    if (GOOGLE_SHEET_CSV_URL === 'COLE_SEU_URL_AQUI') {
-        setError('Por favor, adicione o URL da sua planilha do Google Sheets na variável GOOGLE_SHEET_CSV_URL.');
-        setLoading(false);
-        return;
-    }
-
     fetch(GOOGLE_SHEET_CSV_URL)
       .then(response => {
-        if (!response.ok) {
-          throw new Error('A resposta da rede não foi OK');
-        }
+        if (!response.ok) throw new Error('A resposta da rede não foi OK');
         return response.text();
       })
       .then(csvText => {
         const lines = csvText.split('\n');
-        // Lógica de parsing mais robusta para os cabeçalhos
         const headers = lines[0].split(',').map(header => header.trim().replace(/\r/g, ''));
-        
         const jsonData = lines.slice(1).map(line => {
-          // Lógica de parsing simples, assume que não há vírgulas nos dados
           const values = line.split(',');
-          const obj = {};
-          headers.forEach((header, index) => {
-            // Limpa cada valor para remover espaços e \r
-            const value = values[index] ? values[index].trim().replace(/\r/g, '') : '';
-            obj[header] = value;
-          });
-          return obj;
+          return headers.reduce((obj, header, index) => {
+            obj[header] = values[index] ? values[index].trim().replace(/\r/g, '') : '';
+            return obj;
+          }, {});
         });
-
-        // Para depuração: Verifique o primeiro objeto de dados no console do browser (F12)
-        if (jsonData.length > 0) {
-          console.log("Exemplo do primeiro lead carregado:", jsonData[0]);
-        }
-
-        setData(jsonData);
+        setAllData(jsonData);
         setLoading(false);
       })
       .catch(err => {
@@ -147,14 +170,43 @@ export default function App() {
       });
   }, []);
 
-  // Cálculos das métricas
-  const totalLeads = data.length;
-  const leadsComResposta = data.filter(d => d['Data_Resposta_Msg']).length;
-  // **CORREÇÃO APLICADA AQUI**
-  // A verificação agora é case-insensitive (ignora maiúsculas/minúsculas).
-  const leadsAgendados = data.filter(d => d['Agendado']?.toUpperCase() === 'TRUE').length;
+  // Lógica para filtrar os dados
+  const filteredData = useMemo(() => {
+    return allData
+      .filter(d => {
+        if (filters.responsavel === 'Todos') return true;
+        return d['Responsável'] === filters.responsavel;
+      })
+      .filter(d => {
+        if (filters.etapa === 'Todas') return true;
+        return d['Etapa Atual'] === filters.etapa;
+      })
+      .filter(d => {
+        if (!filters.startDate || !filters.endDate) return true;
+        // Converte a data da planilha (dd/mm/yyyy) para o formato do JS (yyyy-mm-dd) para comparação
+        const parts = d['Data_Criacao'].split(' ')[0].split('/');
+        if (parts.length !== 3) return false;
+        const leadDate = new Date(parts[2], parts[1] - 1, parts[0]);
+        
+        const startDate = new Date(filters.startDate);
+        const endDate = new Date(filters.endDate);
+        
+        // Ajusta as datas para ignorar o fuso horário
+        startDate.setUTCHours(0,0,0,0);
+        endDate.setUTCHours(0,0,0,0);
+        leadDate.setUTCHours(0,0,0,0);
+
+        return leadDate >= startDate && leadDate <= endDate;
+      })
+      .sort((a, b) => new Date(b.Data_Criacao) - new Date(a.Data_Criacao));
+  }, [allData, filters]);
+
+  // Cálculos das métricas com base nos dados filtrados
+  const totalLeads = filteredData.length;
+  const leadsComResposta = filteredData.filter(d => d['Data_Resposta_Msg']).length;
+  const leadsAgendados = filteredData.filter(d => d['Agendado']?.toUpperCase() === 'TRUE').length;
   
-  const leadsComInteresse = data.reduce((acc, lead) => {
+  const leadsComInteresse = filteredData.reduce((acc, lead) => {
     const resposta = lead['Conteudo_Resposta']?.toLowerCase() || '';
     if (KEYWORDS_INTEREST.some(keyword => resposta.includes(keyword))) {
       return acc + 1;
@@ -182,6 +234,8 @@ export default function App() {
           <p className="text-gray-400">Análise de performance dos SDRs e automações.</p>
         </header>
 
+        <DashboardFilters data={allData} filters={filters} setFilters={setFilters} />
+
         {/* Secção de KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <KpiCard title="Taxa de Agendamento" value={taxaAgendamento} unit="%" icon={<CheckCircle />} color="green" />
@@ -191,8 +245,8 @@ export default function App() {
 
         {/* Secção de Gráficos e Tabelas */}
         <div className="grid grid-cols-1 gap-8">
-          <FunnelChart data={data} />
-          <RecentLeadsTable data={data} />
+          <FunnelChart data={filteredData} />
+          <RecentLeadsTable data={filteredData} />
         </div>
       </div>
     </div>
