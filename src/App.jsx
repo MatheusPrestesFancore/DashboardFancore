@@ -51,8 +51,16 @@ export default function App() {
   }, []);
 
   const filteredData = useMemo(() => {
+    // **NOVA LÓGICA DE FILTRAGEM DE RESPONSÁVEL**
+    const getResponsavelKey = () => {
+      if (activePage === 'sdr') return 'Responsável SDR';
+      if (activePage === 'closer') return 'Responsável Closer';
+      return 'Responsável'; // Padrão para as outras páginas
+    };
+    const responsavelKey = getResponsavelKey();
+
     return allData
-      .filter(d => filters.responsavel === 'Todos' || d['Responsável'] === filters.responsavel)
+      .filter(d => filters.responsavel === 'Todos' || d[responsavelKey] === filters.responsavel)
       .filter(d => filters.etapa === 'Todas' || d['Etapa Atual'] === filters.etapa)
       .filter(d => {
         if (!filters.startDate || !filters.endDate) return true;
@@ -67,7 +75,7 @@ export default function App() {
         return leadDate >= startDate && leadDate <= endDate;
       })
       .sort((a, b) => new Date(b.Data_Criacao) - new Date(a.Data_Criacao));
-  }, [allData, filters]);
+  }, [allData, filters, activePage]); // Adicionado activePage às dependências
 
   const renderPage = () => {
     switch (activePage) {
@@ -111,7 +119,8 @@ export default function App() {
             <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
             <p className="text-gray-400">Análise de performance da equipa e automações.</p>
           </header>
-          <DashboardFilters data={allData} filters={filters} setFilters={setFilters} />
+          {/* Passa a página ativa para os filtros saberem qual coluna usar */}
+          <DashboardFilters data={allData} filters={filters} setFilters={setFilters} activePage={activePage} />
           {renderPage()}
         </div>
       </main>

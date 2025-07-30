@@ -1,7 +1,15 @@
 import React, { useMemo } from 'react';
 
-const DashboardFilters = ({ data, filters, setFilters }) => {
-  const responsaveis = useMemo(() => ['Todos', ...new Set(data.map(d => d['Responsável']).filter(Boolean))], [data]);
+const DashboardFilters = ({ data, filters, setFilters, activePage }) => {
+  // **NOVA LÓGICA DE LISTA DE RESPONSÁVEIS**
+  const responsaveis = useMemo(() => {
+    let key = 'Responsável';
+    if (activePage === 'sdr') key = 'Responsável SDR';
+    if (activePage === 'closer') key = 'Responsável Closer';
+    
+    return ['Todos', ...new Set(data.map(d => d[key]).filter(Boolean))];
+  }, [data, activePage]);
+
   const etapas = useMemo(() => ['Todas', ...new Set(data.map(d => d['Etapa Atual']).filter(Boolean))], [data]);
 
   const handleFilterChange = (key, value) => {
