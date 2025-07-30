@@ -2,9 +2,16 @@ import React from 'react';
 import KpiCard from '../components/KpiCard';
 import { TrendingUp, UserCheck, CalendarCheck } from 'lucide-react';
 
+// **NOVA LÓGICA** - Define quais etapas contam como qualificação
+const QUALIFIED_STAGES_SDR = [
+  'Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato',
+  'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
+  'Data_COF assinada', 'Data_Venda'
+];
+
 const SdrPerformanceDashboard = ({ data }) => {
   const leads = data.length;
-  const qualificados = data.filter(d => d['Data_Primeiro contato']).length;
+  const qualificados = data.filter(lead => QUALIFIED_STAGES_SDR.some(stage => lead[stage])).length;
   const agendados = data.filter(d => d['Data_Reunião agendada']).length;
   const realizados = data.filter(d => d['Data_Reunião realizada']).length;
 
@@ -19,7 +26,6 @@ const SdrPerformanceDashboard = ({ data }) => {
         <KpiCard title="Qualificado > Agendado" value={taxaAgendamento} unit="%" icon={<CalendarCheck />} color="purple" />
         <KpiCard title="Agendado > Realizado" value={taxaComparecimento} unit="%" icon={<TrendingUp />} color="yellow" />
       </div>
-      {/* Futuramente, podemos adicionar aqui tabelas e gráficos específicos de SDR, como ranking */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <h3 className="text-lg font-semibold text-white mb-4">Análise Detalhada SDR</h3>
           <p className="text-gray-400">Mais gráficos e tabelas de performance de SDR serão adicionados aqui.</p>

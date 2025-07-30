@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 
-// Função auxiliar para formatar datas no formato DD/MM
 const formatDate = (date) => {
   if (!date) return '';
   const day = String(date.getDate()).padStart(2, '0');
@@ -8,14 +7,13 @@ const formatDate = (date) => {
   return `${day}/${month}`;
 };
 
-// Função auxiliar para obter o rótulo da semana (Sábado - Sexta)
 const getSaturdayWeekLabel = (dateStr) => {
   const parts = dateStr?.split(' ')[0].split('/');
   if (parts?.length !== 3) return null;
   const date = new Date(parts[2], parts[1] - 1, parts[0]);
   
-  const dayOfWeek = date.getDay(); // 0=Domingo, 6=Sábado
-  const dateOffset = (dayOfWeek + 1) % 7; // Sábado=0, Domingo=1...
+  const dayOfWeek = date.getDay();
+  const dateOffset = (dayOfWeek + 1) % 7;
   
   const weekStartDate = new Date(date);
   weekStartDate.setDate(date.getDate() - dateOffset);
@@ -25,6 +23,13 @@ const getSaturdayWeekLabel = (dateStr) => {
 
   return `${formatDate(weekStartDate)} ATÉ ${formatDate(weekEndDate)}`;
 };
+
+// **NOVA LÓGICA** - Define quais etapas contam como qualificação
+const QUALIFIED_STAGES_TABLE = [
+  'Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato',
+  'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
+  'Data_COF assinada', 'Data_Venda'
+];
 
 const WeeklyPerformanceTable = ({ data }) => {
   const weeklyData = useMemo(() => {
@@ -45,13 +50,13 @@ const WeeklyPerformanceTable = ({ data }) => {
       }
 
       weeks[weekLabel].leads += 1;
-      if (lead['Data_Primeiro contato']) weeks[weekLabel].qualificados += 1;
+      // **CORREÇÃO APLICADA AQUI**
+      if (QUALIFIED_STAGES_TABLE.some(stage => lead[stage])) weeks[weekLabel].qualificados += 1;
       if (lead['Data_Reunião agendada']) weeks[weekLabel].agendados += 1;
       if (lead['Data_Reunião realizada']) weeks[weekLabel].realizados += 1;
       if (lead['Data_Venda']) weeks[weekLabel].vendas += 1;
     });
 
-    // Converte o objeto para um array e ordena
     return Object.entries(weeks)
       .map(([label, values]) => ({ label, ...values }))
       .sort((a, b) => {

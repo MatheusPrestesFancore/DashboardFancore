@@ -4,6 +4,13 @@ import GoalGauge from '../components/GoalGauge';
 import WeeklyPerformanceTable from '../components/WeeklyPerformanceTable';
 import SdrFunnelChart from '../components/SdrFunnelChart';
 
+// **NOVA LÓGICA** - Define quais etapas contam como qualificação
+const QUALIFIED_STAGES = [
+  'Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato',
+  'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
+  'Data_COF assinada', 'Data_Venda'
+];
+
 const FunilDeVendasDashboard = ({ data, goals }) => {
   const goalsMap = useMemo(() => {
     return goals.reduce((acc, goal) => {
