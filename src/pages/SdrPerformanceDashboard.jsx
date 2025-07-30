@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import KpiCard from '../components/KpiCard';
-import GoalGauge from '../components/GoalGauge'; // Importa o componente de velocímetro
+import GoalGauge from '../components/GoalGauge';
 
-// Defina as metas de conversão aqui (em percentagem)
-const GOALS = {
-  agendadoVsLead: 15,
-  realizadaVsAgendada: 48,
-  cofVsRealizada: 90,
-  vendaVsCof: 11,
-};
+const SdrPerformanceDashboard = ({ data, goals }) => {
+  // Transforma os dados das metas num formato fácil de usar
+  const goalsMap = useMemo(() => {
+    return goals.reduce((acc, goal) => {
+      // A chave é o 'Nome_Meta' e o valor é o 'Valor_Meta' convertido para número
+      acc[goal.Nome_Meta] = parseFloat(goal.Valor_Meta) || 0;
+      return acc;
+    }, {});
+  }, [goals]);
 
-const SdrPerformanceDashboard = ({ data }) => {
   // Contagens de cada etapa
   const leads = data.length;
   const reunioesAgendadas = data.filter(d => d['Data_Reunião agendada']).length;
@@ -26,14 +27,13 @@ const SdrPerformanceDashboard = ({ data }) => {
 
   return (
     <>
-      {/* SECÇÃO DE METAS COM VELOCÍMETROS */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
         <h3 className="text-lg font-semibold text-white mb-4">Metas de Conversão do Funil</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <GoalGauge title="Agendado x Lead" value={taxaAgendadoVsLead} goal={GOALS.agendadoVsLead} color="purple" />
-          <GoalGauge title="Realizada x Agendada" value={taxaRealizadaVsAgendada} goal={GOALS.realizadaVsAgendada} color="yellow" />
-          <GoalGauge title="COF Enviada x Realizada" value={taxaCofVsRealizada} goal={GOALS.cofVsRealizada} color="cyan" />
-          <GoalGauge title="Venda x COF Enviada" value={taxaVendaVsCof} goal={GOALS.vendaVsCof} color="green" />
+          <GoalGauge title="Agendado x Lead" value={taxaAgendadoVsLead} goal={goalsMap['Agendado x Lead']} color="purple" />
+          <GoalGauge title="Realizada x Agendada" value={taxaRealizadaVsAgendada} goal={goalsMap['Realizada x Agendada']} color="yellow" />
+          <GoalGauge title="COF Enviada x Realizada" value={taxaCofVsRealizada} goal={goalsMap['COF Enviada x Realizada']} color="cyan" />
+          <GoalGauge title="Venda x COF Enviada" value={taxaVendaVsCof} goal={goalsMap['Venda x COF Enviada']} color="green" />
         </div>
       </div>
 

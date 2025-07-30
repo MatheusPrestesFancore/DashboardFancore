@@ -6,8 +6,12 @@ import SdrPerformanceDashboard from './pages/SdrPerformanceDashboard';
 
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 
+// **NOVO** - Cole aqui o link da sua aba de Metas
+const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
+
 export default function App() {
   const [allData, setAllData] = useState([]);
+  const [goalsData, setGoalsData] = useState([]); // Novo estado para as metas
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activePage, setActivePage] = useState('automation');
@@ -19,28 +23,33 @@ export default function App() {
   });
 
   useEffect(() => {
-    fetch(GOOGLE_SHEET_CSV_URL)
-      .then(response => {
-        if (!response.ok) throw new Error('A resposta da rede não foi OK');
-        return response.text();
-      })
-      .then(csvText => {
-        const lines = csvText.split('\n');
-        const headers = lines[0].split(',').map(header => header.trim().replace(/\r/g, ''));
-        const jsonData = lines.slice(1).map(line => {
-          const values = line.split(',');
-          return headers.reduce((obj, header, index) => {
-            obj[header] = values[index] ? values[index].trim().replace(/\r/g, '') : '';
-            return obj;
-          }, {});
-        });
-        setAllData(jsonData);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Falha ao carregar os dados da planilha. Verifique o URL e as permissões de partilha (publicar na web).');
-        setLoading(false);
+    // Função para processar o CSV
+    const parseCsv = (csvText) => {
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',').map(header => header.trim().replace(/\r/g, ''));
+      return lines.slice(1).map(line => {
+        const values = line.split(',');
+        return headers.reduce((obj, header, index) => {
+          obj[header] = values[index] ? values[index].trim().replace(/\r/g, '') : '';
+          return obj;
+        }, {});
       });
+    };
+
+    // Carrega os dois ficheiros em paralelo
+    Promise.all([
+      fetch(GOOGLE_SHEET_CSV_URL).then(response => response.text()),
+      fetch(GOOGLE_SHEET_GOALS_CSV_URL).then(response => response.text())
+    ])
+    .then(([leadsCsv, goalsCsv]) => {
+      setAllData(parseCsv(leadsCsv));
+      setGoalsData(parseCsv(goalsCsv));
+      setLoading(false);
+    })
+    .catch(err => {
+      setError('Falha ao carregar os dados das planilhas. Verifique os URLs e as permissões de partilha (publicar na web).');
+      setLoading(false);
+    });
   }, []);
 
   const filteredData = useMemo(() => {
@@ -78,7 +87,7 @@ export default function App() {
           </header>
           <DashboardFilters data={allData} filters={filters} setFilters={setFilters} />
           {activePage === 'automation' && <AutomationDashboard data={filteredData} />}
-          {activePage === 'sdr' && <SdrPerformanceDashboard data={filteredData} />}
+          {activePage === 'sdr' && <SdrPerformanceDashboard data={filteredData} goals={goalsData} />}
         </div>
       </main>
     </div>
