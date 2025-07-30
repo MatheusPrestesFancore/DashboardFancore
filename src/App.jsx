@@ -3,15 +3,15 @@ import Sidebar from './components/Sidebar';
 import DashboardFilters from './components/DashboardFilters';
 import AutomationDashboard from './pages/AutomationDashboard';
 import SdrPerformanceDashboard from './pages/SdrPerformanceDashboard';
+import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
+import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
-
-// **NOVO** - Cole aqui o link da sua aba de Metas
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 
 export default function App() {
   const [allData, setAllData] = useState([]);
-  const [goalsData, setGoalsData] = useState([]); // Novo estado para as metas
+  const [goalsData, setGoalsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activePage, setActivePage] = useState('automation');
@@ -23,7 +23,6 @@ export default function App() {
   });
 
   useEffect(() => {
-    // Função para processar o CSV
     const parseCsv = (csvText) => {
       const lines = csvText.split('\n');
       const headers = lines[0].split(',').map(header => header.trim().replace(/\r/g, ''));
@@ -36,7 +35,6 @@ export default function App() {
       });
     };
 
-    // Carrega os dois ficheiros em paralelo
     Promise.all([
       fetch(GOOGLE_SHEET_CSV_URL).then(response => response.text()),
       fetch(GOOGLE_SHEET_GOALS_CSV_URL).then(response => response.text())
@@ -71,6 +69,36 @@ export default function App() {
       .sort((a, b) => new Date(b.Data_Criacao) - new Date(a.Data_Criacao));
   }, [allData, filters]);
 
+  const renderPage = () => {
+    switch (activePage) {
+      case 'automation':
+        return <AutomationDashboard data={filteredData} />;
+      case 'funil':
+        return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
+      case 'sdr':
+        return <SdrPerformanceDashboard data={filteredData} />;
+      case 'closer':
+        return <CloserPerformanceDashboard data={filteredData} />;
+      default:
+        return <AutomationDashboard data={filteredData} />;
+    }
+  };
+  
+  const getPageTitle = () => {
+     switch (activePage) {
+      case 'automation':
+        return 'Dashboard de Automação';
+      case 'funil':
+        return 'Dashboard Funil de Vendas';
+      case 'sdr':
+        return 'Dashboard de Performance SDR';
+      case 'closer':
+        return 'Dashboard de Performance Closer';
+      default:
+        return 'Dashboard de Vendas';
+    }
+  }
+
   if (loading) return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Carregando dados...</div>;
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
 
@@ -80,14 +108,11 @@ export default function App() {
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-white">
-              {activePage === 'automation' ? 'Dashboard de Automação' : 'Dashboard de Performance SDR'}
-            </h1>
-            <p className="text-gray-400">Análise de performance dos SDRs e automações.</p>
+            <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
+            <p className="text-gray-400">Análise de performance da equipa e automações.</p>
           </header>
           <DashboardFilters data={allData} filters={filters} setFilters={setFilters} />
-          {activePage === 'automation' && <AutomationDashboard data={filteredData} />}
-          {activePage === 'sdr' && <SdrPerformanceDashboard data={filteredData} goals={goalsData} />}
+          {renderPage()}
         </div>
       </main>
     </div>
