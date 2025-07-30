@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import KpiCard from '../components/KpiCard';
 import GoalGauge from '../components/GoalGauge';
-import WeeklyPerformanceTable from '../components/WeeklyPerformanceTable'; // Importa o novo componente
+import WeeklyPerformanceTable from '../components/WeeklyPerformanceTable';
+import SdrFunnelChart from '../components/SdrFunnelChart'; // Importa o novo componente de funil
 
 const SdrPerformanceDashboard = ({ data, goals }) => {
   const goalsMap = useMemo(() => {
@@ -41,9 +42,12 @@ const SdrPerformanceDashboard = ({ data, goals }) => {
           <KpiCard title="COF Enviadas" value={cofEnviadas} color="cyan" small />
           <KpiCard title="Vendas" value={vendas} color="green" small />
       </div>
-
-      {/* NOVA TABELA SEMANAL ADICIONADA AQUI */}
-      <WeeklyPerformanceTable data={data} />
+      
+      {/* NOVO FUNIL E TABELA SEMANAL LADO A LADO */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <SdrFunnelChart data={data} />
+        <WeeklyPerformanceTable data={data} />
+      </div>
     </>
   );
 };
