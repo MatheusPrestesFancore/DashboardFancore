@@ -1,5 +1,10 @@
 import React from 'react';
 import KpiCard from '../components/KpiCard';
+import GoalGauge from '../components/GoalGauge'; // Importa o novo componente
+
+// Defina as metas mensais aqui
+const META_REUNIOES = 20;
+const META_VENDAS = 5;
 
 const SdrPerformanceDashboard = ({ data }) => {
   const leads = data.length;
@@ -14,6 +19,16 @@ const SdrPerformanceDashboard = ({ data }) => {
 
   return (
     <>
+      {/* NOVA SECÇÃO DE METAS */}
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
+        <h3 className="text-lg font-semibold text-white mb-4">Metas do Mês</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <GoalGauge title="Reuniões Agendadas" value={reunioesAgendadas} goal={META_REUNIOES} color="purple" />
+          <GoalGauge title="Vendas" value={vendas} goal={META_VENDAS} color="green" />
+          {/* Adicione mais velocímetros aqui se precisar */}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           <KpiCard title="Leads" value={leads} color="blue" small />
           <KpiCard title="Qualificados" value={qualificados} color="cyan" small />
