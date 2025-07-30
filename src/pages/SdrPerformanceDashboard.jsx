@@ -1,6 +1,14 @@
 import React from 'react';
 import KpiCard from '../components/KpiCard';
-// O GoalGauge não é mais necessário aqui, a menos que queira mantê-lo para metas numéricas.
+import GoalGauge from '../components/GoalGauge'; // Importa o componente de velocímetro
+
+// Defina as metas de conversão aqui (em percentagem)
+const GOALS = {
+  agendadoVsLead: 15,
+  realizadaVsAgendada: 48,
+  cofVsRealizada: 90,
+  vendaVsCof: 11,
+};
 
 const SdrPerformanceDashboard = ({ data }) => {
   // Contagens de cada etapa
@@ -10,22 +18,22 @@ const SdrPerformanceDashboard = ({ data }) => {
   const cofEnviadas = data.filter(d => d['Data_COF enviada']).length;
   const vendas = data.filter(d => d['Data_Venda']).length;
 
-  // Cálculos das novas taxas de conversão
-  const taxaAgendadoVsLead = leads > 0 ? ((reunioesAgendadas / leads) * 100).toFixed(2) : 0;
-  const taxaRealizadaVsAgendada = reunioesAgendadas > 0 ? ((reunioesRealizadas / reunioesAgendadas) * 100).toFixed(2) : 0;
-  const taxaCofVsRealizada = reunioesRealizadas > 0 ? ((cofEnviadas / reunioesRealizadas) * 100).toFixed(2) : 0;
-  const taxaVendaVsCof = cofEnviadas > 0 ? ((vendas / cofEnviadas) * 100).toFixed(2) : 0;
+  // Cálculos das taxas de conversão
+  const taxaAgendadoVsLead = leads > 0 ? (reunioesAgendadas / leads) * 100 : 0;
+  const taxaRealizadaVsAgendada = reunioesAgendadas > 0 ? (reunioesRealizadas / reunioesAgendadas) * 100 : 0;
+  const taxaCofVsRealizada = reunioesRealizadas > 0 ? (cofEnviadas / reunioesRealizadas) * 100 : 0;
+  const taxaVendaVsCof = cofEnviadas > 0 ? (vendas / cofEnviadas) * 100 : 0;
 
   return (
     <>
-      {/* NOVA SECÇÃO DE METAS DE CONVERSÃO */}
+      {/* SECÇÃO DE METAS COM VELOCÍMETROS */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
         <h3 className="text-lg font-semibold text-white mb-4">Metas de Conversão do Funil</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <KpiCard title="Agendado x Lead" value={taxaAgendadoVsLead} unit="%" color="purple" small />
-          <KpiCard title="Realizada x Agendada" value={taxaRealizadaVsAgendada} unit="%" color="yellow" small />
-          <KpiCard title="COF Enviada x Realizada" value={taxaCofVsRealizada} unit="%" color="cyan" small />
-          <KpiCard title="Venda x COF Enviada" value={taxaVendaVsCof} unit="%" color="green" small />
+          <GoalGauge title="Agendado x Lead" value={taxaAgendadoVsLead} goal={GOALS.agendadoVsLead} color="purple" />
+          <GoalGauge title="Realizada x Agendada" value={taxaRealizadaVsAgendada} goal={GOALS.realizadaVsAgendada} color="yellow" />
+          <GoalGauge title="COF Enviada x Realizada" value={taxaCofVsRealizada} goal={GOALS.cofVsRealizada} color="cyan" />
+          <GoalGauge title="Venda x COF Enviada" value={taxaVendaVsCof} goal={GOALS.vendaVsCof} color="green" />
         </div>
       </div>
 
