@@ -1,11 +1,12 @@
 import React from 'react';
+import { QUALIFIED_STAGES } from '../utils/helpers'; // Importa a constante partilhada
 
 const SdrFunnelChart = ({ data }) => {
   const leads = data.length;
-  // Para o funil, vamos usar as mesmas contagens do dashboard
-  const qualificados = data.filter(d => d['Data_Primeiro contato']).length;
+  const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const agendados = data.filter(d => d['Data_Reunião agendada']).length;
   const realizados = data.filter(d => d['Data_Reunião realizada']).length;
+  const noshow = data.filter(d => d['Data_Noshow']).length;
   const vendas = data.filter(d => d['Data_Venda']).length;
 
   const funnelStages = [
@@ -13,6 +14,7 @@ const SdrFunnelChart = ({ data }) => {
     { name: 'Qualificados', value: qualificados, color: 'bg-cyan-500' },
     { name: 'Agendados', value: agendados, color: 'bg-purple-500' },
     { name: 'Realizados', value: realizados, color: 'bg-yellow-500' },
+    { name: 'Noshow', value: noshow, color: 'bg-red-500' },
     { name: 'Vendas', value: vendas, color: 'bg-green-500' },
   ];
 
@@ -24,10 +26,7 @@ const SdrFunnelChart = ({ data }) => {
       <div className="space-y-2">
         {funnelStages.map((stage) => {
           const percentageOfTotal = total > 0 ? (stage.value / total) * 100 : 0;
-          
-          // Não mostra etapas com zero leads, a menos que seja a primeira
           if (stage.value === 0 && stage.name !== 'Leads Captados') return null;
-
           return (
             <div key={stage.name} className="flex items-center">
               <div className="w-1/3 text-right pr-4 text-gray-400 text-sm">{stage.name}</div>

@@ -3,6 +3,7 @@ import KpiCard from '../components/KpiCard';
 import GoalGauge from '../components/GoalGauge';
 import WeeklyPerformanceTable from '../components/WeeklyPerformanceTable';
 import SdrFunnelChart from '../components/SdrFunnelChart';
+import { QUALIFIED_STAGES } from '../utils/helpers'; // Importa a constante partilhada
 
 const FunilDeVendasDashboard = ({ data, goals }) => {
   const goalsMap = useMemo(() => {
@@ -14,7 +15,7 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
 
   // Contagens de cada etapa
   const leads = data.length;
-  const qualificados = data.filter(lead => QUALIFIED_STAGES_TABLE.some(stage => lead[stage])).length;
+  const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const reunioesAgendadas = data.filter(d => d['Data_Reunião agendada']).length;
   const reunioesRealizadas = data.filter(d => d['Data_Reunião realizada']).length;
   const noshow = data.filter(d => d['Data_Noshow']).length;
