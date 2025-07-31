@@ -5,7 +5,7 @@ import AutomationDashboard from './pages/AutomationDashboard';
 import SdrPerformanceDashboard from './pages/SdrPerformanceDashboard';
 import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
 import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
-import RankingSdrDashboard from './pages/RankingSdrDashboard'; // Importa a nova página
+import RankingSdrDashboard from './pages/RankingSdrDashboard';
 
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
@@ -55,13 +55,15 @@ export default function App() {
     const getResponsavelKey = () => {
       if (activePage === 'sdr') return 'Responsável SDR';
       if (activePage === 'closer') return 'Responsável Closer';
+      // Para a página de ranking, queremos filtrar por SDR também
+      if (activePage === 'ranking') return 'Responsável SDR';
       return 'Responsável';
     };
     const responsavelKey = getResponsavelKey();
 
     return allData
-      .filter(d => activePage === 'ranking' || filters.responsavel === 'Todos' || d[responsavelKey] === filters.responsavel)
-      .filter(d => filters.etapa === 'Todas' || d['Etapa Atual'] === filters.etapa)
+      .filter(d => filters.responsavel === 'Todos' || d[responsavelKey] === filters.responsavel)
+      .filter(d => filters.etapa === 'Todas' || activePage === 'sdr' || activePage === 'closer' || d['Etapa Atual'] === filters.etapa)
       .filter(d => {
         if (!filters.startDate || !filters.endDate) return true;
         const parts = d['Data_Criacao']?.split(' ')[0].split('/');
@@ -88,7 +90,7 @@ export default function App() {
       case 'closer':
         return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking':
-        return <RankingSdrDashboard allData={allData} filters={filters} />; // Passa todos os dados para o ranking
+        return <RankingSdrDashboard allData={allData} filters={filters} />;
       default:
         return <AutomationDashboard data={filteredData} />;
     }
@@ -117,7 +119,7 @@ export default function App() {
             <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
             <p className="text-gray-400">Análise de performance da equipa e automações.</p>
           </header>
-          {/* Oculta os filtros na página de ranking por enquanto */}
+          {/* Oculta os filtros na página de ranking */}
           {activePage !== 'ranking' && <DashboardFilters data={allData} filters={filters} setFilters={setFilters} activePage={activePage} />}
           {renderPage()}
         </div>
