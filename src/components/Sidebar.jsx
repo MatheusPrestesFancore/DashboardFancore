@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, GitBranch, Filter, Award } from 'lucide-react';
+import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy } from 'lucide-react';
 
 const NavItem = ({ page, activePage, setActivePage, icon, children }) => (
   <button onClick={() => setActivePage(page)} className={`flex items-center space-x-3 p-3 rounded-lg w-full text-left transition-colors ${activePage === page ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'}`}>
@@ -20,6 +20,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
         <NavItem page="funil" activePage={activePage} setActivePage={setActivePage} icon={<Filter size={20} />}>Funil de Vendas</NavItem>
         <NavItem page="sdr" activePage={activePage} setActivePage={setActivePage} icon={<Users size={20} />}>Performance SDR</NavItem>
         <NavItem page="closer" activePage={activePage} setActivePage={setActivePage} icon={<Award size={20} />}>Performance Closer</NavItem>
+        <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />}>Ranking SDR</NavItem>
       </nav>
     </aside>
   );
