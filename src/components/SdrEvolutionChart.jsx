@@ -2,10 +2,13 @@ import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const SdrEvolutionChart = ({ data, selectedSdrs }) => {
+  // **CORREÇÃO APLICADA AQUI**
+  // A paleta de cores foi movida para fora do 'useMemo' para ser acessível no return.
+  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
+
   const chartData = useMemo(() => {
     const dailyData = {};
-    const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
-
+    
     data.forEach(lead => {
       if (lead['Data_Reunião agendada']) {
         const dateStr = lead['Data_Reunião agendada'].split(' ')[0];
