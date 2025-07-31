@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import SdrEvolutionChart from '../components/SdrEvolutionChart'; // Importa o novo componente
 
 const RankingSdrDashboard = ({ allData, filters }) => {
   const [selectedSdrs, setSelectedSdrs] = useState([]);
 
-  // Usa os filtros de data globais para filtrar os dados para o ranking
   const filteredForRanking = useMemo(() => {
     return allData.filter(d => {
         if (!filters.startDate || !filters.endDate) return true;
@@ -90,20 +90,9 @@ const RankingSdrDashboard = ({ allData, filters }) => {
               </table>
             </div>
           </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <h3 className="text-lg font-semibold text-white mb-4">Gráfico Comparativo: Reuniões Agendadas</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={rankingData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
-                <XAxis dataKey="name" stroke="#A0AEC0" />
-                <YAxis stroke="#A0AEC0" />
-                <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
-                <Legend wrapperStyle={{ color: '#A0AEC0' }} />
-                <Bar dataKey="Reuniões Agendadas" fill="#8B5CF6" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          
+          {/* GRÁFICO DE EVOLUÇÃO ADICIONADO AQUI */}
+          <SdrEvolutionChart data={filteredForRanking} selectedSdrs={selectedSdrs} />
         </>
       )}
     </div>
