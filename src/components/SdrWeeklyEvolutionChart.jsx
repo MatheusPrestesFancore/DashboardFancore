@@ -1,68 +1,88 @@
 import React, { useMemo } from 'react';
-import { QUALIFIED_STAGES } from '../utils/helpers'; // Importa a constante partilhada
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const formatDate = (date) => { /* ... */ };
-const getSaturdayWeekLabel = (dateStr) => { /* ... */ };
+const formatDate = (date) => {
+  if (!date) return '';
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}`;
+};
 
-const WeeklyPerformanceTable = ({ data }) => {
-  const weeklyData = useMemo(() => {
-    const weeks = {};
+const getSaturdayWeekLabel = (dateStr) => {
+  const parts = dateStr?.split(' ')[0].split('/');
+  if (parts?.length !== 3) return null;
+  const date = new Date(parts[2], parts[1] - 1, parts[0]);
+  
+  const dayOfWeek = date.getDay();
+  const dateOffset = (dayOfWeek + 1) % 7;
+  
+  const weekStartDate = new Date(date);
+  weekStartDate.setDate(date.getDate() - dateOffset);
+  
+  const weekEndDate = new Date(weekStartDate);
+  weekEndDate.setDate(weekStartDate.getDate() + 6);
+
+  return `${formatDate(weekStartDate)}-${formatDate(weekEndDate)}`;
+};
+
+const SdrWeeklyEvolutionChart = ({ data, selectedSdrs }) => {
+  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
+
+  const chartData = useMemo(() => {
+    const weeklyData = {};
 
     data.forEach(lead => {
-      const weekLabel = getSaturdayWeekLabel(lead['Data_Criacao']);
-      if (!weekLabel) return;
+      if (lead['Data_Reunião agendada']) {
+        const weekLabel = getSaturdayWeekLabel(lead['Data_Reunião agendada']);
+        if (!weekLabel) return;
 
-      if (!weeks[weekLabel]) {
-        weeks[weekLabel] = {
-          leads: 0, qualificados: 0, agendados: 0,
-          realizados: 0, noshow: 0, vendas: 0,
-        };
+        if (!weeklyData[weekLabel]) {
+          weeklyData[weekLabel] = { name: weekLabel };
+        }
+
+        const sdr = lead['Responsável SDR'];
+        if (selectedSdrs.includes(sdr)) {
+          if (!weeklyData[weekLabel][sdr]) {
+            weeklyData[weekLabel][sdr] = 0;
+          }
+          weeklyData[weekLabel][sdr] += 1;
+        }
       }
-
-      weeks[weekLabel].leads += 1;
-      if (QUALIFIED_STAGES.some(stage => lead[stage])) weeks[weekLabel].qualificados += 1;
-      if (lead['Data_Reunião agendada']) weeks[weekLabel].agendados += 1;
-      if (lead['Data_Reunião realizada']) weeks[weekLabel].realizados += 1;
-      if (lead['Data_Noshow']) weeks[weekLabel].noshow += 1;
-      if (lead['Data_Venda']) weeks[weekLabel].vendas += 1;
     });
 
-    return Object.entries(weeks).map(([label, values]) => ({ label, ...values })).sort(/* ... */);
-  }, [data]);
+    return Object.values(weeklyData).sort((a, b) => {
+      const dateA = new Date(a.name.slice(0, 5).split('/').reverse().join('-'));
+      const dateB = new Date(b.name.slice(0, 5).split('/').reverse().join('-'));
+      return dateA - dateB;
+    });
+  }, [data, selectedSdrs]);
+
+  if (chartData.length === 0) {
+    return <p className="text-gray-500 text-center py-10">Sem dados de agendamentos semanais para o período selecionado.</p>;
+  }
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-      <h3 className="text-lg font-semibold text-white mb-4">Performance Semanal</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left text-gray-400">
-          <thead className="text-xs text-gray-300 uppercase bg-gray-700">
-            <tr>
-              <th scope="col" className="px-4 py-3">Semana</th>
-              <th scope="col" className="px-4 py-3 text-center">Leads</th>
-              <th scope="col" className="px-4 py-3 text-center">Qualificados</th>
-              <th scope="col" className="px-4 py-3 text-center">Agendados</th>
-              <th scope="col" className="px-4 py-3 text-center">Realizados</th>
-              <th scope="col" className="px-4 py-3 text-center">Noshow</th>
-              <th scope="col" className="px-4 py-3 text-center">Vendas</th>
-            </tr>
-          </thead>
-          <tbody>
-            {weeklyData.map((week) => (
-              <tr key={week.label} className="border-b border-gray-700 hover:bg-gray-700/50">
-                <td className="px-4 py-4 font-medium text-white">{week.label}</td>
-                <td className="px-4 py-4 text-center">{week.leads}</td>
-                <td className="px-4 py-4 text-center">{week.qualificados}</td>
-                <td className="px-4 py-4 text-center">{week.agendados}</td>
-                <td className="px-4 py-4 text-center">{week.realizados}</td>
-                <td className="px-4 py-4 text-center">{week.noshow}</td>
-                <td className="px-4 py-4 text-center">{week.vendas}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={chartData}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
+        <XAxis dataKey="name" stroke="#A0AEC0" />
+        <YAxis stroke="#A0AEC0" allowDecimals={false} /> {/* **CORREÇÃO APLICADA AQUI** */}
+        <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
+        <Legend wrapperStyle={{ color: '#A0AEC0' }} />
+        {selectedSdrs.map((sdr, index) => (
+          <Line 
+            key={sdr} 
+            type="monotone" 
+            dataKey={sdr} 
+            stroke={colors[index % colors.length]} 
+            strokeWidth={2}
+            dot={{ r: 4 }}
+            activeDot={{ r: 8 }}
+          />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
   );
 };
 
-export default WeeklyPerformanceTable;
+export default SdrWeeklyEvolutionChart;
