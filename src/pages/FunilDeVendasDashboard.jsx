@@ -4,13 +4,6 @@ import GoalGauge from '../components/GoalGauge';
 import WeeklyPerformanceTable from '../components/WeeklyPerformanceTable';
 import SdrFunnelChart from '../components/SdrFunnelChart';
 
-// **NOVA LÓGICA** - Define quais etapas contam como qualificação
-const QUALIFIED_STAGES = [
-  'Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato',
-  'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
-  'Data_COF assinada', 'Data_Venda'
-];
-
 const FunilDeVendasDashboard = ({ data, goals }) => {
   const goalsMap = useMemo(() => {
     return goals.reduce((acc, goal) => {
@@ -19,35 +12,56 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
     }, {});
   }, [goals]);
 
+  // Contagens de cada etapa
   const leads = data.length;
+  const qualificados = data.filter(lead => QUALIFIED_STAGES_TABLE.some(stage => lead[stage])).length;
   const reunioesAgendadas = data.filter(d => d['Data_Reunião agendada']).length;
   const reunioesRealizadas = data.filter(d => d['Data_Reunião realizada']).length;
-  const cofEnviadas = data.filter(d => d['Data_COF enviada']).length;
+  const noshow = data.filter(d => d['Data_Noshow']).length;
   const vendas = data.filter(d => d['Data_Venda']).length;
 
-  const taxaAgendadoVsLead = leads > 0 ? (reunioesAgendadas / leads) * 100 : 0;
-  const taxaRealizadaVsAgendada = reunioesAgendadas > 0 ? (reunioesRealizadas / reunioesAgendadas) * 100 : 0;
-  const taxaCofVsRealizada = reunioesRealizadas > 0 ? (cofEnviadas / reunioesRealizadas) * 100 : 0;
-  const taxaVendaVsCof = cofEnviadas > 0 ? (vendas / cofEnviadas) * 100 : 0;
+  // Cálculos das taxas de conversão
+  const taxaQualificadosVsLeads = leads > 0 ? ((qualificados / leads) * 100).toFixed(2) : 0;
+  const taxaAgendadosVsQualificados = qualificados > 0 ? ((reunioesAgendadas / qualificados) * 100).toFixed(2) : 0;
+  const taxaRealizadasVsAgendadas = reunioesAgendadas > 0 ? ((reunioesRealizadas / reunioesAgendadas) * 100).toFixed(2) : 0;
+  const taxaVendasVsRealizadas = reunioesRealizadas > 0 ? ((vendas / reunioesRealizadas) * 100).toFixed(2) : 0;
+  const taxaAgendadosVsLeads = leads > 0 ? ((reunioesAgendadas / leads) * 100).toFixed(2) : 0;
+  const taxaNoshowVsAgendadas = reunioesAgendadas > 0 ? ((noshow / reunioesAgendadas) * 100).toFixed(2) : 0;
 
   return (
     <div className="space-y-8">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Metas de Conversão do Funil</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <GoalGauge title="Agendado x Lead" value={taxaAgendadoVsLead} goal={goalsMap['Agendado x Lead']} color="purple" />
-          <GoalGauge title="Realizada x Agendada" value={taxaRealizadaVsAgendada} goal={goalsMap['Realizada x Agendada']} color="yellow" />
-          <GoalGauge title="COF Enviada x Realizada" value={taxaCofVsRealizada} goal={goalsMap['COF Enviada x Realizada']} color="cyan" />
-          <GoalGauge title="Venda x COF Enviada" value={taxaVendaVsCof} goal={goalsMap['Venda x COF Enviada']} color="green" />
+          <GoalGauge title="Agendado x Lead" value={parseFloat(taxaAgendadosVsLeads)} goal={goalsMap['Agendado x Lead']} color="purple" />
+          <GoalGauge title="Realizada x Agendada" value={parseFloat(taxaRealizadasVsAgendadas)} goal={goalsMap['Realizada x Agendada']} color="yellow" />
+          <GoalGauge title="COF Enviada x Realizada" value={0} goal={goalsMap['COF Enviada x Realizada']} color="cyan" />
+          <GoalGauge title="Venda x COF Enviada" value={0} goal={goalsMap['Venda x COF Enviada']} color="green" />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <KpiCard title="Leads" value={leads} color="blue" small />
-          <KpiCard title="Reuniões Agendadas" value={reunioesAgendadas} color="purple" small />
-          <KpiCard title="Reuniões Realizadas" value={reunioesRealizadas} color="yellow" small />
-          <KpiCard title="COF Enviadas" value={cofEnviadas} color="cyan" small />
-          <KpiCard title="Vendas" value={vendas} color="green" small />
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-semibold text-white mb-4">Visão Geral do Funil</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <KpiCard title="Leads" value={leads} color="blue" small />
+            <KpiCard title="Qualificados" value={qualificados} color="cyan" small />
+            <KpiCard title="Reuniões Agendadas" value={reunioesAgendadas} color="purple" small />
+            <KpiCard title="Reuniões Realizadas" value={reunioesRealizadas} color="yellow" small />
+            <KpiCard title="Noshow" value={noshow} color="red" small />
+            <KpiCard title="Vendas" value={vendas} color="green" small />
+        </div>
+      </div>
+
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h3 className="text-lg font-semibold text-white mb-4">Taxas de Conversão</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <KpiCard title="Qualificados / Leads" value={taxaQualificadosVsLeads} unit="%" color="cyan" small />
+            <KpiCard title="Agendadas / Qualif." value={taxaAgendadosVsQualificados} unit="%" color="purple" small />
+            <KpiCard title="Realizadas / Agend." value={taxaRealizadasVsAgendadas} unit="%" color="yellow" small />
+            <KpiCard title="Vendas / Realizadas" value={taxaVendasVsRealizadas} unit="%" color="green" small />
+            <KpiCard title="Agendadas / Leads" value={taxaAgendadosVsLeads} unit="%" color="purple" small />
+            <KpiCard title="Noshow / Agendadas" value={taxaNoshowVsAgendadas} unit="%" color="red" small />
+        </div>
       </div>
       
       <WeeklyPerformanceTable data={data} />
