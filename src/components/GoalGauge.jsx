@@ -28,12 +28,12 @@ const GoalGauge = ({ title, value, goal, color }) => {
         ></div>
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-2 bg-gray-800 rounded-t"></div>
       </div>
-      {/* **CORREÇÃO APLICADA AQUI** */}
       <p className={`text-3xl font-bold ${colorClasses[color]}`}>
         {Number(value).toFixed(2)}
         <span className="text-lg">%</span>
       </p>
-      <p className="text-xs text-gray-500">Meta: {goal}%</p>
+      {/* **CORREÇÃO APLICADA AQUI** */}
+      <p className="text-xs text-gray-300">Meta: {goal}%</p>
     </div>
   );
 };
