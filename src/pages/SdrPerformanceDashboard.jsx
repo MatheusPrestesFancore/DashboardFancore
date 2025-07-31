@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import KpiCard from '../components/KpiCard';
 import { TrendingUp, UserCheck, CalendarCheck, Clock, Users } from 'lucide-react';
+import { QUALIFIED_STAGES } from '../utils/helpers'; // **CORREÇÃO APLICADA AQUI**
 
 // Função para calcular a diferença de dias úteis (simplificada)
 const parseDate = (dateStr) => {
