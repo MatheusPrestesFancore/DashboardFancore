@@ -35,6 +35,15 @@ export default function App() {
         const lines = csvText.trim().split(/\r?\n/);
         const headers = lines[0].split(',').map(header => header.trim());
         
+        // Função auxiliar para limpar e converter valores
+        const cleanAndParse = (value, parser) => {
+            if (typeof value !== 'string' || value.includes('#ERROR!')) {
+                return 0;
+            }
+            const cleanedValue = value.replace(/[R$\s.]/g, '').replace(',', '.');
+            return parser(cleanedValue) || 0;
+        };
+        
         return lines.slice(1).map(line => {
             const values = line.split(',');
             const obj = headers.reduce((obj, header, index) => {
@@ -43,15 +52,15 @@ export default function App() {
             }, {});
 
             if (isCac) {
-                // --- CORREÇÃO AQUI: Usando os nomes exatos das colunas que você forneceu ---
+                // --- CORREÇÃO AQUI: Usando a função auxiliar para tratar erros e converter ---
                 return {
                     month: obj['Mês/Ano'],
-                    investment: parseFloat(obj['Investimento Total']?.replace(/[R$\s.]/g, '').replace(',', '.')) || 0,
-                    leads: parseInt(obj['Total de Leads'], 10) || 0,
-                    sales: parseInt(obj['Total de Vendas'], 10) || 0,
-                    revenue: parseFloat(obj['Receita Total']?.replace(/[R$\s.]/g, '').replace(',', '.')) || 0,
-                    cpl: parseFloat(obj['CPL (Custo/Lead)']?.replace(/[R$\s.]/g, '').replace(',', '.')) || 0,
-                    cac: parseFloat(obj['CAC (Custo/Cliente)']?.replace(/[R$\s.]/g, '').replace(',', '.')) || 0,
+                    investment: cleanAndParse(obj['Investimento Total'], parseFloat),
+                    leads: cleanAndParse(obj['Total de Leads'], parseInt),
+                    sales: cleanAndParse(obj['Total de Vendas'], parseInt),
+                    revenue: cleanAndParse(obj['Receita Total'], parseFloat),
+                    cpl: cleanAndParse(obj['CPL (Custo/Lead)'], parseFloat),
+                    cac: cleanAndParse(obj['CAC (Custo/Cliente)'], parseFloat),
                 };
             }
             return obj;
