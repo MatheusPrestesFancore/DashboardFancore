@@ -1,5 +1,6 @@
 import React from 'react';
-import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, HandCoins } from 'lucide-react';
+// --- CORREÇÃO AQUI: Troquei HandCoins por DollarSign ---
+import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign } from 'lucide-react';
 
 const NavItem = ({ page, activePage, setActivePage, icon, children }) => (
   <button onClick={() => setActivePage(page)} className={`flex items-center space-x-3 p-3 rounded-lg w-full text-left transition-colors ${activePage === page ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white'}`}>
@@ -21,7 +22,8 @@ const Sidebar = ({ activePage, setActivePage }) => {
         <NavItem page="sdr" activePage={activePage} setActivePage={setActivePage} icon={<Users size={20} />}>Performance SDR</NavItem>
         <NavItem page="closer" activePage={activePage} setActivePage={setActivePage} icon={<Award size={20} />}>Performance Closer</NavItem>
         <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />}>Ranking SDR</NavItem>
-        <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<HandCoins size={20} />}>Análise CAC</NavItem>
+        {/* --- CORREÇÃO AQUI: Usando o ícone DollarSign --- */}
+        <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<DollarSign size={20} />}>Análise CAC</NavItem>
       </nav>
     </aside>
   );

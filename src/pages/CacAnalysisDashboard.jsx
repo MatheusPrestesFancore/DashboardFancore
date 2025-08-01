@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import KpiCard from '../components/KpiCard'; // Ajuste o caminho se necessário
-import { DollarSign, Target, TrendingUp, TrendingDown, HandCoins, Trophy } from 'lucide-react';
+// --- CORREÇÃO AQUI: Troquei HandCoins por CircleDollarSign ---
+import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy } from 'lucide-react';
 
 const CacAnalysisDashboard = ({ data }) => {
     // Função para formatar valores como moeda (BRL)
@@ -32,7 +33,8 @@ const CacAnalysisDashboard = ({ data }) => {
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
                 <KpiCard title="Total de Vendas" value={totals.sales.toLocaleString('pt-BR')} icon={<Trophy />} color="blue" />
                 <KpiCard title="Total de Leads" value={totals.leads.toLocaleString('pt-BR')} icon={<Target />} color="cyan" />
-                <KpiCard title="CAC Médio" value={formatCurrency(totals.cac)} icon={<HandCoins />} color="purple" />
+                {/* --- CORREÇÃO AQUI: Usando o ícone CircleDollarSign --- */}
+                <KpiCard title="CAC Médio" value={formatCurrency(totals.cac)} icon={<CircleDollarSign />} color="purple" />
                 <KpiCard title="CPL Médio" value={formatCurrency(totals.cpl)} icon={<TrendingDown />} color="red" />
             </div>
 
