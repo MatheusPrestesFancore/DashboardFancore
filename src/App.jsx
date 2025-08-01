@@ -29,13 +29,11 @@ export default function App() {
   });
 
   useEffect(() => {
-    // --- FUNÇÃO parseCsv CORRIGIDA ---
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
         const lines = csvText.trim().split(/\r?\n/);
         const headers = lines[0].split(',').map(header => header.trim());
         
-        // Função auxiliar para limpar e converter valores
         const cleanAndParse = (value, parser) => {
             if (typeof value !== 'string' || value.includes('#ERROR!')) {
                 return 0;
@@ -52,7 +50,6 @@ export default function App() {
             }, {});
 
             if (isCac) {
-                // --- CORREÇÃO AQUI: Usando a função auxiliar para tratar erros e converter ---
                 return {
                     month: obj['Mês/Ano'],
                     investment: cleanAndParse(obj['Investimento Total'], parseFloat),
@@ -83,10 +80,6 @@ export default function App() {
         setLoading(false);
     });
   }, []);
-  
-  // O resto do seu arquivo App.jsx permanece o mesmo...
-  // ... (filteredData, filteredCacData, renderPage, getPageTitle, return ...)
-  // ... (Cole o resto do seu código App.jsx aqui)
   
   const filteredData = useMemo(() => {
     return allData
@@ -131,7 +124,7 @@ export default function App() {
       // case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       // case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={filteredCacData} />;
-      default: return <CacAnalysisDashboard data={filteredCacData} />; // <AutomationDashboard data={filteredData} />;
+      default: return <CacAnalysisDashboard data={filteredCacData} />;
     }
   };
   
@@ -147,6 +140,7 @@ export default function App() {
      }
   }
 
+  // --- CORES ATUALIZADAS ---
   if (loading) return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Carregando dados...</div>;
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
 

@@ -1,17 +1,14 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import KpiCard from '../components/KpiCard'; // Ajuste o caminho se necessário
-// --- CORREÇÃO AQUI: Troquei HandCoins por CircleDollarSign ---
-import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy } from 'lucide-react';
+import KpiCard from '../components/KpiCard';
+import { Target, TrendingUp, TrendingDown, CircleDollarSign } from 'lucide-react';
 
 const CacAnalysisDashboard = ({ data }) => {
-    // Função para formatar valores como moeda (BRL)
     const formatCurrency = (value) => {
         if (typeof value !== 'number') return 'R$ 0,00';
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    // Calcula os totais e médias para os KPIs
     const totals = useMemo(() => {
         if (!data || data.length === 0) {
             return { investment: 0, leads: 0, sales: 0, cac: 0, cpl: 0, revenue: 0 };
@@ -27,30 +24,28 @@ const CacAnalysisDashboard = ({ data }) => {
 
     return (
         <div className="space-y-8">
-            {/* Seção de KPIs */}
+            {/* --- CORES DOS KPIs ATUALIZADAS PARA LARANJA --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <KpiCard title="Investimento Total" value={formatCurrency(totals.investment)} icon={<DollarSign />} color="yellow" />
+                <KpiCard title="Investimento Total" value={formatCurrency(totals.investment)} icon={<DollarSign />} color="orange" />
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
-                <KpiCard title="Total de Vendas" value={totals.sales.toLocaleString('pt-BR')} icon={<Trophy />} color="blue" />
+                <KpiCard title="Total de Vendas" value={totals.sales.toLocaleString('pt-BR')} icon={<Trophy />} color="sky" />
                 <KpiCard title="Total de Leads" value={totals.leads.toLocaleString('pt-BR')} icon={<Target />} color="cyan" />
-                {/* --- CORREÇÃO AQUI: Usando o ícone CircleDollarSign --- */}
-                <KpiCard title="CAC Médio" value={formatCurrency(totals.cac)} icon={<CircleDollarSign />} color="purple" />
+                <KpiCard title="CAC Médio" value={formatCurrency(totals.cac)} icon={<CircleDollarSign />} color="orange" />
                 <KpiCard title="CPL Médio" value={formatCurrency(totals.cpl)} icon={<TrendingDown />} color="red" />
             </div>
-
-            {/* Gráfico de Evolução Mensal */}
+            {/* --- CORES DO GRÁFICO ATUALIZADAS PARA LARANJA --- */}
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">Evolução Mensal - CPL vs. CAC</h3>
                 {data && data.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={data}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
-                            <XAxis dataKey="month" stroke="#A0AEC0" />
-                            <YAxis tickFormatter={(value) => `R$${value.toLocaleString('pt-BR')}`} stroke="#A0AEC0" />
-                            <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} formatter={(value) => formatCurrency(value)} />
-                            <Legend wrapperStyle={{ color: '#A0AEC0' }} />
-                            <Line type="monotone" dataKey="cpl" name="Custo por Lead (CPL)" stroke="#8884d8" strokeWidth={2} />
-                            <Line type="monotone" dataKey="cac" name="Custo por Cliente (CAC)" stroke="#82ca9d" strokeWidth={2} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+                            <XAxis dataKey="month" stroke="#9ca3af" />
+                            <YAxis tickFormatter={(value) => `R$${value.toLocaleString('pt-BR')}`} stroke="#9ca3af" />
+                            <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151' }} formatter={(value) => formatCurrency(value)} />
+                            <Legend wrapperStyle={{ color: '#9ca3af' }} />
+                            <Line type="monotone" dataKey="cpl" name="Custo por Lead (CPL)" stroke="#f97316" strokeWidth={2} />
+                            <Line type="monotone" dataKey="cac" name="Custo por Cliente (CAC)" stroke="#22d3ee" strokeWidth={2} />
                         </LineChart>
                     </ResponsiveContainer>
                 ) : (
