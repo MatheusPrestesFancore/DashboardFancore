@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardFilters from './components/DashboardFilters';
 import AutomationDashboard from './pages/AutomationDashboard';
