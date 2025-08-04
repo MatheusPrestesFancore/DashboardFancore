@@ -6,6 +6,7 @@ import SdrFunnelChart from '../components/SdrFunnelChart';
 import { QUALIFIED_STAGES } from '../utils/helpers';
 
 const FunilDeVendasDashboard = ({ data, goals }) => {
+  // ... (seu código da página de funil de vendas permanece o mesmo)
   const goalsMap = useMemo(() => {
     return goals.reduce((acc, goal) => {
       acc[goal.Nome_Meta] = parseFloat(goal.Valor_Meta) || 0;
@@ -13,7 +14,6 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
     }, {});
   }, [goals]);
 
-  // Contagens de cada etapa
   const leads = data.length;
   const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const reunioesAgendadas = data.filter(d => d['Data_Reunião agendada']).length;
@@ -21,7 +21,6 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
   const noshow = data.filter(d => d['Data_Noshow']).length;
   const vendas = data.filter(d => d['Data_Venda']).length;
 
-  // Cálculos das taxas de conversão
   const taxaQualificadosVsLeads = leads > 0 ? ((qualificados / leads) * 100).toFixed(2) : 0;
   const taxaAgendadosVsQualificados = qualificados > 0 ? ((reunioesAgendadas / qualificados) * 100).toFixed(2) : 0;
   const taxaRealizadasVsAgendadas = reunioesAgendadas > 0 ? ((reunioesRealizadas / reunioesAgendadas) * 100).toFixed(2) : 0;
@@ -31,19 +30,15 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
 
   return (
     <div className="space-y-8">
-      {/* --- CORES ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Metas de Conversão do Funil</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* O GoalGauge não tem prop de cor, ele usa classes fixas. Mantido por enquanto. */}
           <GoalGauge title="Agendado x Lead" value={parseFloat(taxaAgendadosVsLeads)} goal={goalsMap['Agendado x Lead']} color="purple" />
           <GoalGauge title="Realizada x Agendada" value={parseFloat(taxaRealizadasVsAgendadas)} goal={goalsMap['Realizada x Agendada']} color="yellow" />
           <GoalGauge title="COF Enviada x Realizada" value={0} goal={goalsMap['COF Enviada x Realizada']} color="cyan" />
           <GoalGauge title="Venda x COF Enviada" value={0} goal={goalsMap['Venda x COF Enviada']} color="green" />
         </div>
       </div>
-
-      {/* --- CORES ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Visão Geral do Funil</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -55,8 +50,6 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
             <KpiCard title="Vendas" value={vendas} color="green" small />
         </div>
       </div>
-
-      {/* --- CORES ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Taxas de Conversão</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -68,7 +61,6 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
             <KpiCard title="Noshow / Agendadas" value={taxaNoshowVsAgendadas} unit="%" color="red" small />
         </div>
       </div>
-      
       <WeeklyPerformanceTable data={data} />
       <SdrFunnelChart data={data} />
     </div>

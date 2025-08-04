@@ -5,6 +5,7 @@ import { MessageSquare, TrendingUp, CheckCircle } from 'lucide-react';
 import { KEYWORDS_INTEREST } from '../utils/helpers';
 
 const AutomationDashboard = ({ data }) => {
+  // ... (seu código da página de automação permanece o mesmo)
   const automationLeads = useMemo(() => {
     const automationStages = [
       'Data_Segundo contato',
@@ -45,13 +46,11 @@ const AutomationDashboard = ({ data }) => {
 
   return (
     <>
-      {/* --- CORES DOS KPIs ATUALIZADAS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <KpiCard title="Taxa de Agendamento (Aut.)" value={taxaAgendamento} unit="%" icon={<CheckCircle />} color="green" />
         <KpiCard title="Taxa de Resposta (Aut.)" value={taxaResposta} unit="%" icon={<MessageSquare />} color="cyan" />
         <KpiCard title="Taxa de Interesse (Aut.)" value={taxaInteresse} unit="%" icon={<TrendingUp />} color="orange" />
       </div>
-      {/* --- CORES DO GRÁFICO ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Funil de Vendas (Automação)</h3>
         <ResponsiveContainer width="100%" height={300}>

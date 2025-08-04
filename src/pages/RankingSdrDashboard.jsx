@@ -4,8 +4,9 @@ import SdrEvolutionChart from '../components/SdrEvolutionChart';
 import SdrWeeklyEvolutionChart from '../components/SdrWeeklyEvolutionChart';
 
 const RankingSdrDashboard = ({ allData, filters }) => {
+  // ... (seu código da página de ranking permanece o mesmo)
   const [selectedSdrs, setSelectedSdrs] = useState([]);
-  const [chartView, setChartView] = useState('daily'); // 'daily' ou 'weekly'
+  const [chartView, setChartView] = useState('daily');
 
   const filteredForRanking = useMemo(() => {
     return allData.filter(d => {
@@ -48,7 +49,6 @@ const RankingSdrDashboard = ({ allData, filters }) => {
 
   return (
     <div className="space-y-8">
-      {/* --- CORES ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Selecionar SDRs para Comparação</h3>
         <div className="flex flex-wrap gap-4">
@@ -65,7 +65,6 @@ const RankingSdrDashboard = ({ allData, filters }) => {
           ))}
         </div>
       </div>
-
       {selectedSdrs.length > 0 && (
         <>
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -93,7 +92,6 @@ const RankingSdrDashboard = ({ allData, filters }) => {
                 </table>
             </div>
           </div>
-          
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-white">Evolução: Reuniões Agendadas</h3>

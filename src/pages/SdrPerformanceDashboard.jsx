@@ -3,13 +3,14 @@ import KpiCard from '../components/KpiCard';
 import { TrendingUp, UserCheck, CalendarCheck, Clock, Users } from 'lucide-react';
 import { QUALIFIED_STAGES } from '../utils/helpers';
 
-const parseDate = (dateStr) => {
+const SdrPerformanceDashboard = ({ data }) => {
+  // ... (seu código da página de performance de SDR permanece o mesmo)
+  const parseDate = (dateStr) => {
     const parts = dateStr?.split(' ')[0].split('/');
     if (parts?.length !== 3) return null;
     return new Date(parts[2], parts[1] - 1, parts[0]);
-}
+  }
 
-const SdrPerformanceDashboard = ({ data }) => {
   const leads = data.length;
   const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const agendados = data.filter(d => d['Data_Reunião agendada']).length;
@@ -19,7 +20,6 @@ const SdrPerformanceDashboard = ({ data }) => {
   const taxaAgendamento = qualificados > 0 ? ((agendados / qualificados) * 100).toFixed(2) : 0;
   const taxaComparecimento = agendados > 0 ? ((realizados / agendados) * 100).toFixed(2) : 0;
 
-  // Métricas de tempo
   const timeToQualify = useMemo(() => {
     const qualifiedLeadsWithDates = data.filter(d => d['Data_Criacao'] && d['Data_Primeiro contato']);
     if (qualifiedLeadsWithDates.length === 0) return 0;
@@ -35,7 +35,6 @@ const SdrPerformanceDashboard = ({ data }) => {
     return (totalDays / qualifiedLeadsWithDates.length).toFixed(1);
   }, [data]);
 
-  // Ranking de SDRs
   const sdrRanking = useMemo(() => {
     const sdrs = {};
     data.forEach(lead => {
@@ -59,15 +58,12 @@ const SdrPerformanceDashboard = ({ data }) => {
 
   return (
     <div className="space-y-8">
-      {/* --- CORES ATUALIZADAS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KpiCard title="Lead > Qualificado" value={taxaQualificacao} unit="%" icon={<UserCheck />} color="cyan" />
         <KpiCard title="Qualificado > Agendado" value={taxaAgendamento} unit="%" icon={<CalendarCheck />} color="orange" />
         <KpiCard title="Agendado > Realizado" value={taxaComparecimento} unit="%" icon={<TrendingUp />} color="yellow" />
         <KpiCard title="Tempo Médio Qualif." value={timeToQualify} unit="dias" icon={<Clock />} color="sky" />
       </div>
-      
-      {/* --- CORES ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center"><Users size={20} className="mr-2 text-orange-500"/> Ranking de SDRs (por Agendamentos)</h3>
           <div className="overflow-x-auto">
