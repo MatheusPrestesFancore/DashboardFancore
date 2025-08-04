@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
 import KpiCard from '../components/KpiCard';
 import { TrendingUp, UserCheck, CalendarCheck, Clock, Users } from 'lucide-react';
-import { QUALIFIED_STAGES } from '../utils/helpers'; // **CORREÇÃO APLICADA AQUI**
+import { QUALIFIED_STAGES } from '../utils/helpers';
 
-// Função para calcular a diferença de dias úteis (simplificada)
 const parseDate = (dateStr) => {
     const parts = dateStr?.split(' ')[0].split('/');
     if (parts?.length !== 3) return null;
@@ -61,15 +60,17 @@ const SdrPerformanceDashboard = ({ data }) => {
 
   return (
     <div className="space-y-8">
+      {/* --- CORES ATUALIZADAS --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KpiCard title="Lead > Qualificado" value={taxaQualificacao} unit="%" icon={<UserCheck />} color="cyan" />
-        <KpiCard title="Qualificado > Agendado" value={taxaAgendamento} unit="%" icon={<CalendarCheck />} color="purple" />
+        <KpiCard title="Qualificado > Agendado" value={taxaAgendamento} unit="%" icon={<CalendarCheck />} color="orange" />
         <KpiCard title="Agendado > Realizado" value={taxaComparecimento} unit="%" icon={<TrendingUp />} color="yellow" />
-        <KpiCard title="Tempo Médio Qualif." value={timeToQualify} unit="dias" icon={<Clock />} color="blue" />
+        <KpiCard title="Tempo Médio Qualif." value={timeToQualify} unit="dias" icon={<Clock />} color="sky" />
       </div>
       
+      {/* --- CORES ATUALIZADAS --- */}
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center"><Users size={20} className="mr-2 text-blue-400"/> Ranking de SDRs (por Agendamentos)</h3>
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center"><Users size={20} className="mr-2 text-orange-500"/> Ranking de SDRs (por Agendamentos)</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-400">
               <thead className="text-xs text-gray-300 uppercase bg-gray-700">
@@ -87,7 +88,7 @@ const SdrPerformanceDashboard = ({ data }) => {
                     <td className="px-4 py-4 font-bold text-lg text-white">#{index + 1}</td>
                     <td className="px-4 py-4 font-medium text-white">{sdr.name}</td>
                     <td className="px-4 py-4 text-center">{sdr.leads}</td>
-                    <td className="px-4 py-4 text-center text-lg font-bold text-purple-400">{sdr.agendados}</td>
+                    <td className="px-4 py-4 text-center text-lg font-bold text-orange-400">{sdr.agendados}</td>
                     <td className="px-4 py-4 text-center font-bold text-cyan-400">{sdr.taxa}</td>
                   </tr>
                 ))}

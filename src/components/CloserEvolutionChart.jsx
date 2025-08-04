@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// Funções auxiliares para datas (pode movê-las para helpers.js no futuro)
+// Funções auxiliares para datas
 const formatDate = (date) => {
   if (!date) return '';
   const day = String(date.getDate()).padStart(2, '0');
@@ -29,11 +29,12 @@ const getSaturdayWeekLabel = (dateStr) => {
 const CloserEvolutionChart = ({ data }) => {
   const [activeMetric, setActiveMetric] = useState('Reuniões Realizadas');
 
+  // --- PALETA DE CORES ATUALIZADA ---
   const metrics = [
-    { name: 'Reuniões Realizadas', dataKey: 'Data_Reunião feita', color: '#FBBF24' },
-    { name: 'COFs Enviadas', dataKey: 'Data_COF Enviada', color: '#22D3EE' },
-    { name: 'COFs Assinadas', dataKey: 'Data_COF Assinada', color: '#60A5FA' },
-    { name: 'Vendas', dataKey: 'Data_Venda', color: '#4ADE80' },
+    { name: 'Reuniões Realizadas', dataKey: 'Data_Reunião feita', color: '#f59e0b' }, // Ambar
+    { name: 'COFs Enviadas', dataKey: 'Data_COF Enviada', color: '#06b6d4' },       // Cyan
+    { name: 'COFs Assinadas', dataKey: 'Data_COF Assinada', color: '#38bdf8' },      // Sky
+    { name: 'Vendas', dataKey: 'Data_Venda', color: '#10b981' },                     // Emerald
   ];
 
   const chartData = useMemo(() => {
@@ -63,6 +64,7 @@ const CloserEvolutionChart = ({ data }) => {
   }, [data, activeMetric]);
 
   return (
+    // --- CORES DE FUNDO E TEXTO ATUALIZADAS ---
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
       <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
         <h3 className="text-lg font-semibold text-white">Evolução Semanal - Closer</h3>
@@ -71,7 +73,8 @@ const CloserEvolutionChart = ({ data }) => {
             <button 
               key={metric.name}
               onClick={() => setActiveMetric(metric.name)} 
-              className={`px-3 py-1 text-sm rounded-md transition-colors ${activeMetric === metric.name ? 'bg-blue-500 text-white' : 'text-gray-400 hover:bg-gray-600'}`}
+              // --- CORES DOS BOTÕES ATUALIZADAS ---
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${activeMetric === metric.name ? 'bg-orange-600 text-white' : 'text-gray-300 hover:bg-gray-600'}`}
             >
               {metric.name}
             </button>
@@ -80,22 +83,26 @@ const CloserEvolutionChart = ({ data }) => {
       </div>
       
       {chartData.length === 0 ? (
-         <p className="text-gray-500 text-center py-10">Sem dados para a métrica "{activeMetric}" no período selecionado.</p>
+          <p className="text-gray-500 text-center py-10">Sem dados para a métrica "{activeMetric}" no período selecionado.</p>
       ) : (
+        // --- CORES DO GRÁFICO ATUALIZADAS ---
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
-            <XAxis dataKey="name" stroke="#A0AEC0" />
-            <YAxis stroke="#A0AEC0" allowDecimals={false} />
-            <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
-            <Legend wrapperStyle={{ color: '#A0AEC0' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+            <XAxis dataKey="name" stroke="#9ca3af" />
+            <YAxis stroke="#9ca3af" allowDecimals={false} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}
+              cursor={{ fill: 'rgba(249, 115, 22, 0.1)' }}
+            />
+            <Legend wrapperStyle={{ color: '#9ca3af' }} />
             <Line 
               type="monotone" 
               dataKey="value" 
               name={activeMetric}
               stroke={metrics.find(m => m.name === activeMetric)?.color} 
               strokeWidth={2}
-              dot={{ r: 4 }}
+              dot={{ r: 4, fill: metrics.find(m => m.name === activeMetric)?.color }}
               activeDot={{ r: 8 }}
             />
           </LineChart>

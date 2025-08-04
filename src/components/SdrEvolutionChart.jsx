@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const SdrEvolutionChart = ({ data, selectedSdrs }) => {
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
+  // --- PALETA DE CORES ATUALIZADA ---
+  const colors = ['#f97316', '#06b6d4', '#10b981', '#8b5cf6', '#ec4899', '#f59e0b'];
 
   const chartData = useMemo(() => {
     const dailyData = {};
@@ -36,17 +37,22 @@ const SdrEvolutionChart = ({ data, selectedSdrs }) => {
   }, [data, selectedSdrs]);
 
   if (chartData.length === 0) {
+    // --- COR DO TEXTO ATUALIZADA ---
     return <p className="text-gray-500 text-center py-10">Sem dados de agendamentos diários para o período selecionado.</p>;
   }
 
   return (
+    // --- CORES DO GRÁFICO ATUALIZADAS ---
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#4A5568" />
-        <XAxis dataKey="name" stroke="#A0AEC0" />
-        <YAxis stroke="#A0AEC0" allowDecimals={false} /> {/* **CORREÇÃO APLICADA AQUI** */}
-        <Tooltip contentStyle={{ backgroundColor: '#1A202C', border: '1px solid #4A5568' }} />
-        <Legend wrapperStyle={{ color: '#A0AEC0' }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
+        <XAxis dataKey="name" stroke="#9ca3af" />
+        <YAxis stroke="#9ca3af" allowDecimals={false} />
+        <Tooltip 
+            contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}
+            cursor={{ fill: 'rgba(249, 115, 22, 0.1)' }}
+        />
+        <Legend wrapperStyle={{ color: '#9ca3af' }} />
         {selectedSdrs.map((sdr, index) => (
           <Line 
             key={sdr} 
@@ -54,7 +60,7 @@ const SdrEvolutionChart = ({ data, selectedSdrs }) => {
             dataKey={sdr} 
             stroke={colors[index % colors.length]} 
             strokeWidth={2}
-            dot={{ r: 4 }}
+            dot={{ r: 4, fill: colors[index % colors.length] }}
             activeDot={{ r: 8 }}
           />
         ))}
