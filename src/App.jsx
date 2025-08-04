@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardFilters from './components/DashboardFilters';
 import AutomationDashboard from './pages/AutomationDashboard';
@@ -6,7 +7,7 @@ import SdrPerformanceDashboard from './pages/SdrPerformanceDashboard';
 import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
 import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
-import CacAnalysisDashboard from './pages/CacAnalysisDashboard'; // Ajuste o caminho se necessário
+import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
 
 // URLs das planilhas
 const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
@@ -20,7 +21,7 @@ export default function App() {
   const [cacData, setCacData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState('cac');
+  const [activePage, setActivePage] = useState('automation'); // Voltando para a página inicial padrão
   const [filters, setFilters] = useState({
     responsavel: 'Todos',
     etapa: 'Todas',
@@ -29,13 +30,11 @@ export default function App() {
   });
 
   useEffect(() => {
-    // --- FUNÇÃO parseCsv CORRIGIDA ---
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
         const lines = csvText.trim().split(/\r?\n/);
         const headers = lines[0].split(',').map(header => header.trim());
         
-        // Função auxiliar para limpar e converter valores
         const cleanAndParse = (value, parser) => {
             if (typeof value !== 'string' || value.includes('#ERROR!')) {
                 return 0;
@@ -52,7 +51,6 @@ export default function App() {
             }, {});
 
             if (isCac) {
-                // --- CORREÇÃO AQUI: Usando a função auxiliar para tratar erros e converter ---
                 return {
                     month: obj['Mês/Ano'],
                     investment: cleanAndParse(obj['Investimento Total'], parseFloat),
@@ -84,14 +82,10 @@ export default function App() {
     });
   }, []);
   
-  // O resto do seu arquivo App.jsx permanece o mesmo...
-  // ... (filteredData, filteredCacData, renderPage, getPageTitle, return ...)
-  // ... (Cole o resto do seu código App.jsx aqui)
-  
   const filteredData = useMemo(() => {
     return allData
       .filter(d => filters.responsavel === 'Todos' || d[activePage === 'sdr' ? 'Responsável SDR' : 'Responsável Closer'] === filters.responsavel)
-      .filter(d => filters.etapa === 'Todas' || !['sdr', 'closer'].includes(activePage) || d['Etapa Atual'] === filters.etapa)
+      .filter(d => filters.etapa === 'Todas' || !['sdr', 'closer', 'cac'].includes(activePage) || d['Etapa Atual'] === filters.etapa)
       .filter(d => {
         if (!filters.startDate || !filters.endDate) return true;
         const parts = d['Data_Criacao']?.split(' ')[0].split('/');
@@ -122,16 +116,16 @@ export default function App() {
     });
   }, [cacData, filters]);
 
+  // --- CORREÇÃO AQUI: RESTAURANDO TODAS AS PÁGINAS ---
   const renderPage = () => {
-    // Para simplificar, estou omitindo as outras páginas, mas você deve mantê-las
     switch (activePage) {
-      // case 'automation': return <AutomationDashboard data={filteredData} />;
-      // case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
-      // case 'sdr': return <SdrPerformanceDashboard data={filteredData} />;
-      // case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
-      // case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
+      case 'automation': return <AutomationDashboard data={filteredData} />;
+      case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
+      case 'sdr': return <SdrPerformanceDashboard data={filteredData} />;
+      case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
+      case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={filteredCacData} />;
-      default: return <CacAnalysisDashboard data={filteredCacData} />; // <AutomationDashboard data={filteredData} />;
+      default: return <AutomationDashboard data={filteredData} />;
     }
   };
   
