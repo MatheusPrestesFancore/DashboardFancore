@@ -2,7 +2,6 @@ import React from 'react';
 import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign } from 'lucide-react';
 
 const NavItem = ({ page, activePage, setActivePage, icon, children }) => (
-  // --- CORES ATUALIZADAS PARA LARANJA ---
   <button onClick={() => setActivePage(page)} className={`flex items-center space-x-3 p-3 rounded-lg w-full text-left transition-colors ${activePage === page ? 'bg-orange-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}>
     {icon}
     <span>{children}</span>
@@ -11,7 +10,6 @@ const NavItem = ({ page, activePage, setActivePage, icon, children }) => (
 
 const Sidebar = ({ activePage, setActivePage }) => {
   return (
-    // --- CORES ATUALIZADAS ---
     <aside className="w-64 bg-gray-800 p-4 flex-shrink-0">
       <div className="flex items-center space-x-2 mb-10">
         <GitBranch className="text-orange-500" />
@@ -28,4 +26,5 @@ const Sidebar = ({ activePage, setActivePage }) => {
     </aside>
   );
 };
+
 export default Sidebar;
