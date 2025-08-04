@@ -20,7 +20,7 @@ export default function App() {
   const [cacData, setCacData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState('automation'); // Voltando para a página inicial padrão
+  const [activePage, setActivePage] = useState('cac');
   const [filters, setFilters] = useState({
     responsavel: 'Todos',
     etapa: 'Todas',
@@ -29,17 +29,25 @@ export default function App() {
   });
 
   useEffect(() => {
+    // --- FUNÇÃO parseCsv CORRIGIDA ---
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
         const lines = csvText.trim().split(/\r?\n/);
         const headers = lines[0].split(',').map(header => header.trim());
         
-        const cleanAndParse = (value, parser) => {
-            if (typeof value !== 'string' || value.includes('#ERROR!')) {
-                return 0;
-            }
-            const cleanedValue = value.replace(/[R$\s.]/g, '').replace(',', '.');
-            return parser(cleanedValue) || 0;
+        // Funções de conversão mais robustas
+        const parseCurrency = (value) => {
+            if (typeof value !== 'string' || !value) return 0;
+            // 1. Remove "R$", espaços e pontos de milhar.
+            const cleaned = value.replace(/R\$\s?|\./g, '');
+            // 2. Troca a vírgula decimal por um ponto.
+            const final = cleaned.replace(',', '.');
+            return parseFloat(final) || 0;
+        };
+
+        const parseIntValue = (value) => {
+            if (typeof value !== 'string' || !value) return 0;
+            return parseInt(value, 10) || 0;
         };
         
         return lines.slice(1).map(line => {
@@ -50,14 +58,15 @@ export default function App() {
             }, {});
 
             if (isCac) {
+                // --- CORREÇÃO AQUI: Usando as novas funções de conversão ---
                 return {
                     month: obj['Mês/Ano'],
-                    investment: cleanAndParse(obj['Investimento Total'], parseFloat),
-                    leads: cleanAndParse(obj['Total de Leads'], parseInt),
-                    sales: cleanAndParse(obj['Total de Vendas'], parseInt),
-                    revenue: cleanAndParse(obj['Receita Total'], parseFloat),
-                    cpl: cleanAndParse(obj['CPL (Custo/Lead)'], parseFloat),
-                    cac: cleanAndParse(obj['CAC (Custo/Cliente)'], parseFloat),
+                    investment: parseCurrency(obj['Investimento Total']),
+                    leads: parseIntValue(obj['Total de Leads']),
+                    sales: parseIntValue(obj['Total de Vendas']),
+                    revenue: parseCurrency(obj['Receita Total']),
+                    cpl: parseCurrency(obj['CPL (Custo/Lead)']),
+                    cac: parseCurrency(obj['CAC (Custo/Cliente)']),
                 };
             }
             return obj;
@@ -115,7 +124,6 @@ export default function App() {
     });
   }, [cacData, filters]);
 
-  // --- CORREÇÃO AQUI: RESTAURANDO TODAS AS PÁGINAS ---
   const renderPage = () => {
     switch (activePage) {
       case 'automation': return <AutomationDashboard data={filteredData} />;
@@ -124,7 +132,7 @@ export default function App() {
       case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={filteredCacData} />;
-      default: return <CacAnalysisDashboard data={filteredCacData} />; // <AutomationDashboard data={filteredData} />;
+      default: return <AutomationDashboard data={filteredData} />;
     }
   };
   
@@ -140,7 +148,6 @@ export default function App() {
      }
   }
 
-  // --- CORES ATUALIZADAS ---
   if (loading) return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Carregando dados...</div>;
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
 
