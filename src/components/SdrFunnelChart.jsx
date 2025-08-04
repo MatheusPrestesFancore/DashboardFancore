@@ -8,10 +8,11 @@ const SdrFunnelChart = ({ data }) => {
   const realizados = data.filter(d => d['Data_Reunião realizada']).length;
   const vendas = data.filter(d => d['Data_Venda']).length;
 
+  // --- PALETA DE CORES ATUALIZADA ---
   const funnelStages = [
-    { name: 'Leads Captados', value: leads, color: 'bg-blue-500' },
-    { name: 'Qualificados', value: qualificados, color: 'bg-cyan-500' },
-    { name: 'Agendados', value: agendados, color: 'bg-purple-500' },
+    { name: 'Leads Captados', value: leads, color: 'bg-orange-500' },
+    { name: 'Qualificados', value: qualificados, color: 'bg-sky-500' },
+    { name: 'Agendados', value: agendados, color: 'bg-cyan-500' },
     { name: 'Realizados', value: realizados, color: 'bg-yellow-500' },
     { name: 'Vendas', value: vendas, color: 'bg-green-500' },
   ];
@@ -19,13 +20,14 @@ const SdrFunnelChart = ({ data }) => {
   const total = funnelStages[0].value;
 
   return (
+    // --- CORES DE FUNDO E TEXTO ATUALIZADAS ---
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h3 className="text-lg font-semibold text-white mb-6">Funil de Conversão</h3>
       <div className="flex flex-col items-center space-y-[-16px]"> {/* Overlap para efeito 3D */}
         {funnelStages.map((stage, index) => {
-          if (total === 0) return null;
+          if (total === 0 && index > 0) return null;
           
-          const widthPercentage = (stage.value / total) * 100;
+          const widthPercentage = total > 0 ? (stage.value / total) * 100 : 0;
           
           if (stage.value === 0 && index > 0) return null;
 
@@ -42,7 +44,7 @@ const SdrFunnelChart = ({ data }) => {
               <div className="text-center">
                 <div>{stage.name}</div>
                 <div className="text-xs opacity-80 font-normal">
-                  {stage.value} ({((stage.value / total) * 100).toFixed(1)}%)
+                  {stage.value} ({total > 0 ? ((stage.value / total) * 100).toFixed(1) : '0.0'}%)
                 </div>
               </div>
             </div>

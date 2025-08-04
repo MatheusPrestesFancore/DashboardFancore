@@ -24,7 +24,6 @@ const getSaturdayWeekLabel = (dateStr) => {
   return `${formatDate(weekStartDate)} ATÉ ${formatDate(weekEndDate)}`;
 };
 
-// **NOVA LÓGICA** - Define quais etapas contam como qualificação
 const QUALIFIED_STAGES_TABLE = [
   'Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato',
   'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
@@ -50,7 +49,6 @@ const WeeklyPerformanceTable = ({ data }) => {
       }
 
       weeks[weekLabel].leads += 1;
-      // **CORREÇÃO APLICADA AQUI**
       if (QUALIFIED_STAGES_TABLE.some(stage => lead[stage])) weeks[weekLabel].qualificados += 1;
       if (lead['Data_Reunião agendada']) weeks[weekLabel].agendados += 1;
       if (lead['Data_Reunião realizada']) weeks[weekLabel].realizados += 1;
@@ -68,6 +66,7 @@ const WeeklyPerformanceTable = ({ data }) => {
   }, [data]);
 
   return (
+    // --- CORES ATUALIZADAS ---
     <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
       <h3 className="text-lg font-semibold text-white mb-4">Performance Semanal</h3>
       <div className="overflow-x-auto">
