@@ -29,25 +29,24 @@ export default function App() {
   });
 
   useEffect(() => {
-    // --- FUNÇÃO parseCsv CORRIGIDA ---
+    // --- FUNÇÃO parseCsv CORRIGIDA E MAIS ROBUSTA ---
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
         const lines = csvText.trim().split(/\r?\n/);
-        const headers = lines[0].split(',').map(header => header.trim());
+        const headers = lines[0].split(',').map(header => header.trim().replace(/^"|"$/g, ''));
         
-        // Funções de conversão mais robustas
         const parseCurrency = (value) => {
             if (typeof value !== 'string' || !value) return 0;
-            // 1. Remove "R$", espaços e pontos de milhar.
-            const cleaned = value.replace(/R\$\s?|\./g, '');
-            // 2. Troca a vírgula decimal por um ponto.
-            const final = cleaned.replace(',', '.');
-            return parseFloat(final) || 0;
+            // Remove aspas, "R$", espaços, e pontos de milhar, depois troca a vírgula.
+            const cleaned = value.replace(/^"|"$/g, '').replace(/R\$\s?|\./g, '').replace(',', '.');
+            return parseFloat(cleaned) || 0;
         };
 
         const parseIntValue = (value) => {
             if (typeof value !== 'string' || !value) return 0;
-            return parseInt(value, 10) || 0;
+            // Remove aspas antes de converter para inteiro.
+            const cleaned = value.replace(/^"|"$/g, '');
+            return parseInt(cleaned, 10) || 0;
         };
         
         return lines.slice(1).map(line => {
