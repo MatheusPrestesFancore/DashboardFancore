@@ -10,7 +10,6 @@ const parseDate = (dateStr) => {
 }
 
 const SdrPerformanceDashboard = ({ data }) => {
-  // Métricas de conversão
   const leads = data.length;
   const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const agendados = data.filter(d => d['Data_Reunião agendada']).length;
