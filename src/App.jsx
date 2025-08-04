@@ -32,32 +32,50 @@ export default function App() {
     // --- FUNÇÃO parseCsv CORRIGIDA E MAIS ROBUSTA ---
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
+        
+        // Parser de linha de CSV que respeita aspas
+        const parseCsvLine = (line) => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            for (const char of line) {
+                if (char === '"' && !inQuotes) {
+                    inQuotes = true;
+                } else if (char === '"' && inQuotes) {
+                    inQuotes = false;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
+        };
+
         const lines = csvText.trim().split(/\r?\n/);
         const headers = lines[0].split(',').map(header => header.trim().replace(/^"|"$/g, ''));
         
         const parseCurrency = (value) => {
             if (typeof value !== 'string' || !value) return 0;
-            // Remove aspas, "R$", espaços, e pontos de milhar, depois troca a vírgula.
-            const cleaned = value.replace(/^"|"$/g, '').replace(/R\$\s?|\./g, '').replace(',', '.');
+            const cleaned = value.replace(/R\$\s?|\./g, '').replace(',', '.');
             return parseFloat(cleaned) || 0;
         };
 
         const parseIntValue = (value) => {
             if (typeof value !== 'string' || !value) return 0;
-            // Remove aspas antes de converter para inteiro.
-            const cleaned = value.replace(/^"|"$/g, '');
-            return parseInt(cleaned, 10) || 0;
+            return parseInt(value, 10) || 0;
         };
         
         return lines.slice(1).map(line => {
-            const values = line.split(',');
+            const values = parseCsvLine(line); // Usando o novo parser de linha
             const obj = headers.reduce((obj, header, index) => {
                 obj[header] = values[index] ? values[index].trim() : '';
                 return obj;
             }, {});
 
             if (isCac) {
-                // --- CORREÇÃO AQUI: Usando as novas funções de conversão ---
                 return {
                     month: obj['Mês/Ano'],
                     investment: parseCurrency(obj['Investimento Total']),
@@ -84,6 +102,7 @@ export default function App() {
         setLoading(false);
     })
     .catch(err => {
+        console.error(err);
         setError('Falha ao carregar os dados das planilhas.');
         setLoading(false);
     });
@@ -112,7 +131,7 @@ export default function App() {
         if (monthYear.length !== 2) return false;
         
         const monthMap = { 'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5, 'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11 };
-        const monthIndex = monthMap[monthYear[0].toLowerCase()];
+        const monthIndex = monthMap[row.month.split('.')[0].toLowerCase()];
         if (monthIndex === undefined) return false;
 
         const rowDate = new Date(parseInt(monthYear[1]), monthIndex, 1);
