@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-const DashboardFilters = ({ data, filters, setFilters, activePage }) => {
+const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) => { // 1. Recebe 'origens' como prop
   const responsaveis = useMemo(() => {
     let key = 'Responsável';
     if (activePage === 'sdr') key = 'Responsável SDR';
@@ -18,9 +18,9 @@ const DashboardFilters = ({ data, filters, setFilters, activePage }) => {
   const showEtapaFilter = !['sdr', 'closer', 'cac'].includes(activePage);
 
   return (
-    // --- CORES ATUALIZADAS ---
     <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-8">
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${showEtapaFilter ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4 items-end`}>
+      {/* Ajustado o grid para acomodar o novo filtro */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end`}>
         <div>
           <label htmlFor="responsavel" className="block text-sm font-medium text-gray-400 mb-1">Responsável</label>
           <select 
@@ -30,6 +30,19 @@ const DashboardFilters = ({ data, filters, setFilters, activePage }) => {
             className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             {responsaveis.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </div>
+
+        {/* --- NOVO FILTRO DE ORIGEM ADICIONADO AQUI --- */}
+        <div>
+          <label htmlFor="origem" className="block text-sm font-medium text-gray-400 mb-1">Origem</label>
+          <select 
+            id="origem" 
+            value={filters.origem} 
+            onChange={e => handleFilterChange('origem', e.target.value)} 
+            className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            {origens.map(o => <option key={o} value={o}>{o}</option>)}
           </select>
         </div>
         
