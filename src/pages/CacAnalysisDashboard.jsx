@@ -4,11 +4,14 @@ import KpiCard from '../components/KpiCard';
 import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy } from 'lucide-react';
 
 const CacAnalysisDashboard = ({ data }) => {
-    // ... (seu código da página de CAC permanece o mesmo)
+    // --- FUNÇÃO DE FORMATAÇÃO MELHORADA ---
+    // Garante que qualquer valor seja formatado corretamente como moeda brasileira.
     const formatCurrency = (value) => {
-        if (typeof value !== 'number') return 'R$ 0,00';
+        if (typeof value !== 'number') {
+            value = parseFloat(value) || 0;
+        }
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
+    };
 
     const totals = useMemo(() => {
         if (!data || data.length === 0) {
@@ -25,6 +28,7 @@ const CacAnalysisDashboard = ({ data }) => {
 
     return (
         <div className="space-y-8">
+            {/* KPIs agora usam a mesma função de formatação */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <KpiCard title="Investimento Total" value={formatCurrency(totals.investment)} icon={<DollarSign />} color="orange" />
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
@@ -33,6 +37,7 @@ const CacAnalysisDashboard = ({ data }) => {
                 <KpiCard title="CAC Médio" value={formatCurrency(totals.cac)} icon={<CircleDollarSign />} color="orange" />
                 <KpiCard title="CPL Médio" value={formatCurrency(totals.cpl)} icon={<TrendingDown />} color="red" />
             </div>
+            
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">Evolução Mensal - CPL vs. CAC</h3>
                 {data && data.length > 0 ? (
@@ -40,9 +45,15 @@ const CacAnalysisDashboard = ({ data }) => {
                         <LineChart data={data}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
                             <XAxis dataKey="month" stroke="#9ca3af" />
-                            <YAxis tickFormatter={(value) => `R$${value.toLocaleString('pt-BR')}`} stroke="#9ca3af" />
+                            {/* --- FORMATAÇÃO DO EIXO Y CORRIGIDA --- */}
+                            <YAxis 
+                                tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
+                                stroke="#9ca3af" 
+                            />
+                            {/* --- FORMATAÇÃO DO TOOLTIP CORRIGIDA --- */}
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}
+                                formatter={(value, name) => [formatCurrency(value), name]}
                                 cursor={{ fill: 'rgba(249, 115, 22, 0.1)' }}
                             />
                             <Legend wrapperStyle={{ color: '#9ca3af' }} />
