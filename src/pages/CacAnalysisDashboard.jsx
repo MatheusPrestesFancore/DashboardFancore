@@ -4,8 +4,6 @@ import KpiCard from '../components/KpiCard';
 import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy } from 'lucide-react';
 
 const CacAnalysisDashboard = ({ data }) => {
-    // --- FUNÇÃO DE FORMATAÇÃO MELHORADA ---
-    // Garante que qualquer valor seja formatado corretamente como moeda brasileira.
     const formatCurrency = (value) => {
         if (typeof value !== 'number') {
             value = parseFloat(value) || 0;
@@ -28,7 +26,6 @@ const CacAnalysisDashboard = ({ data }) => {
 
     return (
         <div className="space-y-8">
-            {/* KPIs agora usam a mesma função de formatação */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <KpiCard title="Investimento Total" value={formatCurrency(totals.investment)} icon={<DollarSign />} color="orange" />
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
@@ -39,26 +36,43 @@ const CacAnalysisDashboard = ({ data }) => {
             </div>
             
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                <h3 className="text-lg font-semibold text-white mb-4">Evolução Mensal - CPL vs. CAC</h3>
+                {/* --- TÍTULO DO GRÁFICO ATUALIZADO --- */}
+                <h3 className="text-lg font-semibold text-white mb-4">Evolução Mensal - Custos vs. Vendas</h3>
                 {data && data.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
+                        {/* --- GRÁFICO ATUALIZADO COM SEGUNDO EIXO Y --- */}
                         <LineChart data={data}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
                             <XAxis dataKey="month" stroke="#9ca3af" />
-                            {/* --- FORMATAÇÃO DO EIXO Y CORRIGIDA --- */}
                             <YAxis 
+                                yAxisId="left"
                                 tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR')}`}
                                 stroke="#9ca3af" 
+                                label={{ value: 'Custo (R$)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
                             />
-                            {/* --- FORMATAÇÃO DO TOOLTIP CORRIGIDA --- */}
+                            <YAxis 
+                                yAxisId="right" 
+                                orientation="right" 
+                                stroke="#a78bfa"
+                                allowDecimals={false}
+                                label={{ value: 'Vendas', angle: 90, position: 'insideRight', fill: '#a78bfa' }}
+                            />
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}
-                                formatter={(value, name) => [formatCurrency(value), name]}
+                                // --- TOOLTIP ATUALIZADO PARA FORMATAR VENDAS ---
+                                formatter={(value, name) => {
+                                    if (name === 'Vendas') {
+                                        return [value, name];
+                                    }
+                                    return [formatCurrency(value), name];
+                                }}
                                 cursor={{ fill: 'rgba(249, 115, 22, 0.1)' }}
                             />
                             <Legend wrapperStyle={{ color: '#9ca3af' }} />
-                            <Line type="monotone" dataKey="cpl" name="Custo por Lead (CPL)" stroke="#f97316" strokeWidth={2} />
-                            <Line type="monotone" dataKey="cac" name="Custo por Cliente (CAC)" stroke="#22d3ee" strokeWidth={2} />
+                            <Line yAxisId="left" type="monotone" dataKey="cpl" name="Custo por Lead (CPL)" stroke="#f97316" strokeWidth={2} />
+                            <Line yAxisId="left" type="monotone" dataKey="cac" name="Custo por Cliente (CAC)" stroke="#22d3ee" strokeWidth={2} />
+                            {/* --- NOVA LINHA DE VENDAS ADICIONADA --- */}
+                            <Line yAxisId="right" type="monotone" dataKey="sales" name="Vendas" stroke="#a78bfa" strokeWidth={2} />
                         </LineChart>
                     </ResponsiveContainer>
                 ) : (
