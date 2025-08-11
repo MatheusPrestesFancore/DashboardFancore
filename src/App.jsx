@@ -13,6 +13,14 @@ const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PA
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
 
+// --- MELHORIA 1: Estado inicial dos filtros definido como constante ---
+const initialFiltersState = {
+  responsavel: 'Todos',
+  etapa: 'Todas',
+  startDate: '',
+  endDate: '',
+  origem: 'Todas',
+};
 
 export default function App() {
   const [allData, setAllData] = useState([]);
@@ -21,13 +29,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activePage, setActivePage] = useState('cac');
-  const [filters, setFilters] = useState({
-    responsavel: 'Todos',
-    etapa: 'Todas',
-    startDate: '',
-    endDate: '',
-    origem: 'Todas',
-  });
+  const [filters, setFilters] = useState(initialFiltersState);
+
+  // --- MELHORIA 2: Nova função para mudar de página e resetar os filtros ---
+  const handlePageChange = (page) => {
+    setActivePage(page);
+    setFilters(initialFiltersState); // Reseta os filtros para o estado inicial
+  };
 
   useEffect(() => {
     const parseCsv = (csvText, isCac = false) => {
@@ -143,7 +151,6 @@ export default function App() {
       case 'sdr': return <SdrPerformanceDashboard data={filteredData} />;
       case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
-      // --- ALTERAÇÃO AQUI: Passa os dados completos, não filtrados ---
       case 'cac': return <CacAnalysisDashboard data={cacData} />;
       default: return <AutomationDashboard data={filteredData} />;
     }
@@ -166,14 +173,14 @@ export default function App() {
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex font-sans">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      {/* --- MELHORIA 3: Passa a nova função para a Sidebar --- */}
+      <Sidebar activePage={activePage} setActivePage={handlePageChange} />
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <header className="mb-8">
             <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
             <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
           </header>
-          {/* --- ALTERAÇÃO AQUI: Oculta os filtros nas páginas de ranking e CAC --- */}
           {activePage !== 'ranking' && activePage !== 'cac' &&
             <DashboardFilters 
               data={allData} 
