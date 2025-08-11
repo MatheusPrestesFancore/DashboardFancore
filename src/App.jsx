@@ -20,16 +20,15 @@ export default function App() {
   const [cacData, setCacData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState('funil'); // Inicia no funil para teste
+  const [activePage, setActivePage] = useState('cac');
   const [filters, setFilters] = useState({
     responsavel: 'Todos',
     etapa: 'Todas',
     startDate: '',
     endDate: '',
-    origem: 'Todas', // 1. Adiciona o novo estado do filtro
+    origem: 'Todas',
   });
 
-  // ... (useEffect para buscar dados permanece o mesmo) ...
   useEffect(() => {
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
@@ -55,7 +54,8 @@ export default function App() {
         };
         const parseIntValue = (value) => {
             if (typeof value !== 'string' || !value) return 0;
-            return parseInt(value, 10) || 0;
+            const cleaned = value.replace(/^"|"$/g, '');
+            return parseInt(cleaned, 10) || 0;
         };
         return lines.slice(1).map(line => {
             const values = parseCsvLine(line);
@@ -93,11 +93,9 @@ export default function App() {
     });
   }, []);
 
-  // --- NOVA LÓGICA PARA EXTRAIR AS ORIGENS ---
   const origens = useMemo(() => {
     const tags = new Set();
     allData.forEach(lead => {
-      // Regex para encontrar o texto dentro de colchetes []
       const match = lead.Nome_Lead?.match(/\[(.*?)\]/);
       if (match && match[1]) {
         tags.add(match[1]);
@@ -109,7 +107,6 @@ export default function App() {
   const filteredData = useMemo(() => {
     return allData
       .filter(d => {
-        // Lógica de filtro de Responsável
         if (filters.responsavel !== 'Todos') {
             let key = 'Responsável';
             if (activePage === 'sdr') key = 'Responsável SDR';
@@ -119,20 +116,16 @@ export default function App() {
         return true;
       })
       .filter(d => {
-        // Lógica de filtro de Etapa
         if (filters.etapa !== 'Todas' && !['sdr', 'closer', 'cac'].includes(activePage)) {
             if (d['Etapa Atual'] !== filters.etapa) return false;
         }
         return true;
       })
-      // --- NOVA LÓGICA DE FILTRO DE ORIGEM ---
       .filter(d => {
         if (filters.origem === 'Todas') return true;
-        // Verifica se o nome do lead contém a tag selecionada
         return d.Nome_Lead?.includes(`[${filters.origem}]`);
       })
       .filter(d => {
-        // Lógica de filtro de Data
         if (!filters.startDate || !filters.endDate) return true;
         const parts = d['Data_Criacao']?.split(' ')[0].split('/');
         if (parts?.length !== 3) return false;
@@ -143,22 +136,6 @@ export default function App() {
       });
   }, [allData, filters, activePage]);
 
-  // ... (filteredCacData, renderPage, getPageTitle permanecem os mesmos) ...
-  const filteredCacData = useMemo(() => {
-    if (!filters.startDate || !filters.endDate) return cacData;
-    return cacData.filter(row => {
-        const monthYear = row.month.split('/');
-        if (monthYear.length !== 2) return false;
-        const monthMap = { 'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3, 'mai': 4, 'jun': 5, 'jul': 6, 'ago': 7, 'set': 8, 'out': 9, 'nov': 10, 'dez': 11 };
-        const monthIndex = monthMap[row.month.split('.')[0].toLowerCase()];
-        if (monthIndex === undefined) return false;
-        const rowDate = new Date(parseInt(monthYear[1]), monthIndex, 1);
-        const startDate = new Date(filters.startDate);
-        const endDate = new Date(filters.endDate);
-        return rowDate >= startDate && rowDate <= endDate;
-    });
-  }, [cacData, filters]);
-
   const renderPage = () => {
     switch (activePage) {
       case 'automation': return <AutomationDashboard data={filteredData} />;
@@ -166,7 +143,8 @@ export default function App() {
       case 'sdr': return <SdrPerformanceDashboard data={filteredData} />;
       case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
-      case 'cac': return <CacAnalysisDashboard data={filteredCacData} />;
+      // --- ALTERAÇÃO AQUI: Passa os dados completos, não filtrados ---
+      case 'cac': return <CacAnalysisDashboard data={cacData} />;
       default: return <AutomationDashboard data={filteredData} />;
     }
   };
@@ -195,8 +173,8 @@ export default function App() {
             <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
             <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
           </header>
-          {/* --- Passando as origens para o componente de filtros --- */}
-          {activePage !== 'ranking' && 
+          {/* --- ALTERAÇÃO AQUI: Oculta os filtros nas páginas de ranking e CAC --- */}
+          {activePage !== 'ranking' && activePage !== 'cac' &&
             <DashboardFilters 
               data={allData} 
               filters={filters} 
