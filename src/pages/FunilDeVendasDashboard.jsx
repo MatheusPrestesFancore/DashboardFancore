@@ -17,7 +17,7 @@ const FunilDeVendasDashboard = ({ data, goals }) => {
   const leads = data.length;
   const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const reunioesAgendadas = data.filter(d => d['Data_Reunião agendada']).length;
-  const reunioesRealizadas = data.filter(d => d['Data_Reunião realizada']).length;
+  const reunioesRealizadas = data.filter(d => d['Data_Reunião feita']).length;
   const noshow = data.filter(d => d['Data_Noshow']).length;
   const vendas = data.filter(d => d['Data_Venda']).length;
 

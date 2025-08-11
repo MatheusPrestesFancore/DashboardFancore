@@ -14,7 +14,7 @@ const SdrPerformanceDashboard = ({ data }) => {
   const leads = data.length;
   const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
   const agendados = data.filter(d => d['Data_Reunião agendada']).length;
-  const realizados = data.filter(d => d['Data_Reunião realizada']).length;
+  const realizados = data.filter(d => d['Data_Reunião feita']).length;
 
   const taxaQualificacao = leads > 0 ? ((qualificados / leads) * 100).toFixed(2) : 0;
   const taxaAgendamento = qualificados > 0 ? ((agendados / qualificados) * 100).toFixed(2) : 0;

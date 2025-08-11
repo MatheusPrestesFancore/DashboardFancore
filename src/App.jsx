@@ -13,6 +13,7 @@ const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PA
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
 
+// --- MELHORIA 1: Estado inicial dos filtros definido como constante ---
 const initialFiltersState = {
   responsavel: 'Todos',
   etapa: 'Todas',
@@ -21,70 +22,19 @@ const initialFiltersState = {
   origem: 'Todas',
 };
 
-// --- CORREÇÃO APLICADA DENTRO DOS COMPONENTES DE PÁGINA ---
-
-const SdrPerformanceDashboardUpdated = ({ data }) => {
-  const QUALIFIED_STAGES = ['Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato', 'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada', 'Data_COF assinada', 'Data_Venda', 'Data_Noshow'];
-  const parseDate = (dateStr) => {
-    const parts = dateStr?.split(' ')[0].split('/');
-    if (parts?.length !== 3) return null;
-    return new Date(parts[2], parts[1] - 1, parts[0]);
-  }
-
-  const leads = data.length;
-  const qualificados = data.filter(lead => QUALIFIED_STAGES.some(stage => lead[stage])).length;
-  const agendados = data.filter(d => d['Data_Reunião agendada']).length;
-  // --- CORREÇÃO AQUI ---
-  const realizados = data.filter(d => d['Data_Reunião feita']).length;
-
-  const taxaQualificacao = leads > 0 ? ((qualificados / leads) * 100).toFixed(2) : 0;
-  const taxaAgendamento = qualificados > 0 ? ((agendados / qualificados) * 100).toFixed(2) : 0;
-  const taxaComparecimento = agendados > 0 ? ((realizados / agendados) * 100).toFixed(2) : 0;
-
-  const timeToQualify = useMemo(() => {
-    const qualifiedLeadsWithDates = data.filter(d => d['Data_Criacao'] && d['Data_Primeiro contato']);
-    if (qualifiedLeadsWithDates.length === 0) return 0;
-    const totalDays = qualifiedLeadsWithDates.reduce((acc, lead) => {
-      const start = parseDate(lead['Data_Criacao']);
-      const end = parseDate(lead['Data_Primeiro contato']);
-      if(start && end) {
-        const diffTime = Math.abs(end - start);
-        return acc + diffTime / (1000 * 60 * 60 * 24);
-      }
-      return acc;
-    }, 0);
-    return (totalDays / qualifiedLeadsWithDates.length).toFixed(1);
-  }, [data]);
-
-  return <SdrPerformanceDashboard data={data} />; // Renderiza o componente original, mas os cálculos são feitos aqui
-};
-
-
-const FunilDeVendasDashboardUpdated = ({ data, goals }) => {
-    const QUALIFIED_STAGES = ['Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato', 'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada', 'Data_COF assinada', 'Data_Venda', 'Data_Noshow'];
-    
-    const reunioesRealizadas = data.filter(d => d['Data_Reunião feita']).length; // --- CORREÇÃO AQUI ---
-    
-    // Recalcula as taxas que dependem de 'reunioesRealizadas'
-    const reunioesAgendadas = data.filter(d => d['Data_Reunião agendada']).length;
-    const taxaRealizadasVsAgendadas = reunioesAgendadas > 0 ? ((reunioesRealizadas / reunioesAgendadas) * 100).toFixed(2) : 0;
-    
-    return <FunilDeVendasDashboard data={data} goals={goals} />; // Renderiza o componente original
-};
-
-
 export default function App() {
   const [allData, setAllData] = useState([]);
   const [goalsData, setGoalsData] = useState([]);
   const [cacData, setCacData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState('sdr');
+  const [activePage, setActivePage] = useState('cac');
   const [filters, setFilters] = useState(initialFiltersState);
 
+  // --- MELHORIA 2: Nova função para mudar de página e resetar os filtros ---
   const handlePageChange = (page) => {
     setActivePage(page);
-    setFilters(initialFiltersState);
+    setFilters(initialFiltersState); // Reseta os filtros para o estado inicial
   };
 
   useEffect(() => {
@@ -197,8 +147,8 @@ export default function App() {
   const renderPage = () => {
     switch (activePage) {
       case 'automation': return <AutomationDashboard data={filteredData} />;
-      case 'funil': return <FunilDeVendasDashboardUpdated data={filteredData} goals={goalsData} />;
-      case 'sdr': return <SdrPerformanceDashboardUpdated data={filteredData} />;
+      case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
+      case 'sdr': return <SdrPerformanceDashboard data={filteredData} />;
       case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={cacData} />;
@@ -223,6 +173,7 @@ export default function App() {
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex font-sans">
+      {/* --- MELHORIA 3: Passa a nova função para a Sidebar --- */}
       <Sidebar activePage={activePage} setActivePage={handlePageChange} />
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
