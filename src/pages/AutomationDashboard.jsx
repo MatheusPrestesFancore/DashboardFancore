@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
 import KpiCard from '../components/KpiCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { MessageSquare, TrendingUp, CheckCircle } from 'lucide-react';
-import { KEYWORDS_INTEREST } from '../utils/helpers';
+import { MessageSquare, TrendingUp, CheckCircle, UserCheck } from 'lucide-react';
+import { KEYWORDS_INTEREST, QUALIFIED_STAGES } from '../utils/helpers';
 
 const AutomationDashboard = ({ data }) => {
-  // ... (seu código da página de automação permanece o mesmo)
   const automationLeads = useMemo(() => {
     const automationStages = [
       'Data_Segundo contato',
@@ -19,6 +18,7 @@ const AutomationDashboard = ({ data }) => {
     );
   }, [data]);
 
+  // Cálculos existentes
   const totalLeads = automationLeads.length;
   const leadsComResposta = automationLeads.filter(d => d['Data_Resposta_Msg']).length;
   const leadsAgendados = automationLeads.filter(d => d['Agendado']?.toUpperCase() === 'TRUE').length;
@@ -31,9 +31,18 @@ const AutomationDashboard = ({ data }) => {
     return acc;
   }, 0);
 
+  // --- NOVO CÁLCULO ADICIONADO ---
+  const leadsQualificados = automationLeads.filter(lead => 
+    QUALIFIED_STAGES.some(stage => lead[stage])
+  ).length;
+
+  // Taxas existentes
   const taxaAgendamento = totalLeads > 0 ? ((leadsAgendados / totalLeads) * 100).toFixed(2) : 0;
   const taxaResposta = totalLeads > 0 ? ((leadsComResposta / totalLeads) * 100).toFixed(2) : 0;
   const taxaInteresse = leadsComResposta > 0 ? ((leadsComInteresse / leadsComResposta) * 100).toFixed(2) : 0;
+
+  // --- NOVA TAXA ADICIONADA ---
+  const taxaQualificacao = totalLeads > 0 ? ((leadsQualificados / totalLeads) * 100).toFixed(2) : 0;
 
   const funnelData = [
     { name: '1. Leads na Automação', value: totalLeads },
@@ -46,11 +55,14 @@ const AutomationDashboard = ({ data }) => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <KpiCard title="Taxa de Agendamento (Aut.)" value={taxaAgendamento} unit="%" icon={<CheckCircle />} color="green" />
+      {/* --- LAYOUT ATUALIZADO E NOVO KPI ADICIONADO --- */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <KpiCard title="Taxa de Qualificação (Aut.)" value={taxaQualificacao} unit="%" icon={<UserCheck />} color="sky" />
         <KpiCard title="Taxa de Resposta (Aut.)" value={taxaResposta} unit="%" icon={<MessageSquare />} color="cyan" />
         <KpiCard title="Taxa de Interesse (Aut.)" value={taxaInteresse} unit="%" icon={<TrendingUp />} color="orange" />
+        <KpiCard title="Taxa de Agendamento (Aut.)" value={taxaAgendamento} unit="%" icon={<CheckCircle />} color="green" />
       </div>
+
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Funil de Vendas (Automação)</h3>
         <ResponsiveContainer width="100%" height={300}>
