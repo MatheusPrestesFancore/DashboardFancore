@@ -31,9 +31,10 @@ const AutomationDashboard = ({ data }) => {
     return acc;
   }, 0);
 
-  // --- NOVO CÁLCULO ADICIONADO ---
+  // --- CÁLCULO CORRIGIDO ---
+  // Agora usa a lista correta de QUALIFIED_STAGES do seu ficheiro de helpers.
   const leadsQualificados = automationLeads.filter(lead => 
-    QUALIFIED_STAGES.some(stage => lead[stage])
+    QUALIFIED_STAGES.some(stage => lead[stage] && lead[stage].trim() !== '')
   ).length;
 
   // Taxas existentes
@@ -41,7 +42,7 @@ const AutomationDashboard = ({ data }) => {
   const taxaResposta = totalLeads > 0 ? ((leadsComResposta / totalLeads) * 100).toFixed(2) : 0;
   const taxaInteresse = leadsComResposta > 0 ? ((leadsComInteresse / leadsComResposta) * 100).toFixed(2) : 0;
 
-  // --- NOVA TAXA ADICIONADA ---
+  // --- NOVA TAXA COM CÁLCULO CORRETO ---
   const taxaQualificacao = totalLeads > 0 ? ((leadsQualificados / totalLeads) * 100).toFixed(2) : 0;
 
   const funnelData = [
@@ -55,7 +56,6 @@ const AutomationDashboard = ({ data }) => {
 
   return (
     <>
-      {/* --- LAYOUT ATUALIZADO E NOVO KPI ADICIONADO --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KpiCard title="Taxa de Qualificação (Aut.)" value={taxaQualificacao} unit="%" icon={<UserCheck />} color="sky" />
         <KpiCard title="Taxa de Resposta (Aut.)" value={taxaResposta} unit="%" icon={<MessageSquare />} color="cyan" />

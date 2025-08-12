@@ -1,6 +1,5 @@
 export const QUALIFIED_STAGES = [
-  'Data_Segundo contato', 'Data_Terceiro contato', 'Data_Quarto contato', 'Data_Quinto contato',
-  'Data_Contato IA', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
+  'Data_Contato Feito', 'Data_Reunião agendada', 'Data_Reunião realizada', 'Data_COF enviada',
   'Data_COF assinada', 'Data_Venda', 'Data_Noshow'
 ];
 
