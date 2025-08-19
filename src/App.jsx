@@ -13,14 +13,13 @@ const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PA
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
 
-// --- MELHORIA 1: Estado inicial dos filtros definido como constante ---
 const initialFiltersState = {
   responsavel: 'Todos',
-  etapa: 'Todas',
+  etapa: 'Todos',
   startDate: '',
   endDate: '',
   origem: 'Todas',
-  dateFilterType: 'custom_created_date',
+  dateFilterType: 'custom_created_date', // Valor inicial para o novo filtro
 };
 
 export default function App() {
@@ -32,13 +31,13 @@ export default function App() {
   const [activePage, setActivePage] = useState('cac');
   const [filters, setFilters] = useState(initialFiltersState);
 
-  // --- MELHORIA 2: Nova função para mudar de página e resetar os filtros ---
   const handlePageChange = (page) => {
     setActivePage(page);
-    setFilters(initialFiltersState); // Reseta os filtros para o estado inicial
+    setFilters(initialFiltersState);
   };
 
   useEffect(() => {
+    // Sua função parseCsv e o fetch continuam os mesmos...
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
         const parseCsvLine = (line) => {
@@ -114,38 +113,71 @@ export default function App() {
   }, [allData]);
   
   const filteredData = useMemo(() => {
-    return allData
-      .filter(d => {
-        if (filters.responsavel !== 'Todos') {
-            let key = 'Responsável';
-            if (activePage === 'sdr') key = 'Responsável SDR';
-            if (activePage === 'closer') key = 'Responsável Closer';
-            if (d[key] !== filters.responsavel) return false;
+    // Função auxiliar para converter "DD/MM/AAAA" em um objeto Date
+    const parseDate = (dateString) => {
+      if (!dateString || typeof dateString !== 'string') return null;
+      const parts = dateString.split(' ')[0].split('/');
+      if (parts.length !== 3) return null;
+      // new Date(ano, mês - 1, dia)
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    };
+
+    let data = allData;
+
+    // Filtro de Responsável
+    if (filters.responsavel !== 'Todos') {
+      let key = 'Responsável';
+      if (activePage === 'sdr') key = 'Responsável SDR';
+      if (activePage === 'closer') key = 'Responsável Closer';
+      data = data.filter(d => d[key] === filters.responsavel);
+    }
+
+    // Filtro de Etapa
+    if (filters.etapa !== 'Todos' && !['sdr', 'closer', 'cac'].includes(activePage)) {
+      data = data.filter(d => d['Etapa Atual'] === filters.etapa);
+    }
+
+    // Filtro de Origem
+    if (filters.origem !== 'Todas') {
+      data = data.filter(d => d.Nome_Lead?.includes(`[${filters.origem}]`));
+    }
+
+    // --- NOVO FILTRO DE DATA ATUALIZADO ---
+    if (filters.startDate && filters.endDate) {
+      const startDate = new Date(filters.startDate);
+      const endDate = new Date(filters.endDate);
+      
+      // Adiciona 23:59:59 ao final do dia para incluir o dia todo no filtro
+      endDate.setHours(23, 59, 59, 999);
+
+      data = data.filter(d => {
+        if (filters.dateFilterType === 'any_activity') {
+          // 👇 IMPORTANTE: Verifique e ajuste os nomes das colunas aqui 👇
+          const datasParaChecar = [
+            d['Data_Criacao'], // Já sabemos que esta existe
+            d['won_time'],      // Exemplo: data de ganho
+            d['lost_time'],     // Exemplo: data de perda
+            d['update_time'],   // Exemplo: data de última atualização
+          ].map(parseDate); // Converte todas para o formato Date
+
+          // Retorna true se QUALQUER uma das datas válidas estiver no intervalo
+          return datasParaChecar.some(date => date && date >= startDate && date <= endDate);
+        
+        } else {
+          // Lógica para filtros de coluna única (Criação, Ganho, etc.)
+          // O nome da coluna vem direto do dropdown
+          const columnName = filters.dateFilterType === 'custom_created_date' ? 'Data_Criacao' : filters.dateFilterType;
+          const leadDate = parseDate(d[columnName]);
+          return leadDate && leadDate >= startDate && leadDate <= endDate;
         }
-        return true;
-      })
-      .filter(d => {
-        if (filters.etapa !== 'Todas' && !['sdr', 'closer', 'cac'].includes(activePage)) {
-            if (d['Etapa Atual'] !== filters.etapa) return false;
-        }
-        return true;
-      })
-      .filter(d => {
-        if (filters.origem === 'Todas') return true;
-        return d.Nome_Lead?.includes(`[${filters.origem}]`);
-      })
-      .filter(d => {
-        if (!filters.startDate || !filters.endDate) return true;
-        const parts = d['Data_Criacao']?.split(' ')[0].split('/');
-        if (parts?.length !== 3) return false;
-        const leadDate = new Date(parts[2], parts[1] - 1, parts[0]);
-        const startDate = new Date(filters.startDate);
-        const endDate = new Date(filters.endDate);
-        return leadDate >= startDate && leadDate <= endDate;
       });
+    }
+
+    return data;
   }, [allData, filters, activePage]);
 
   const renderPage = () => {
+    // ... seu renderPage (sem alterações)
     switch (activePage) {
       case 'automation': return <AutomationDashboard data={filteredData} />;
       case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
@@ -158,15 +190,16 @@ export default function App() {
   };
   
   const getPageTitle = () => {
-     switch (activePage) {
-       case 'automation': return 'Dashboard de Automação';
-       case 'funil': return 'Dashboard Funil de Vendas';
-       case 'sdr': return 'Dashboard de Performance SDR';
-       case 'closer': return 'Dashboard de Performance Closer';
-       case 'ranking': return 'Ranking de SDRs';
-       case 'cac': return 'Dashboard de Análise de CAC';
-       default: return 'Dashboard de Vendas';
-     }
+    // ... seu getPageTitle (sem alterações)
+    switch (activePage) {
+        case 'automation': return 'Dashboard de Automação';
+        case 'funil': return 'Dashboard Funil de Vendas';
+        case 'sdr': return 'Dashboard de Performance SDR';
+        case 'closer': return 'Dashboard de Performance Closer';
+        case 'ranking': return 'Ranking de SDRs';
+        case 'cac': return 'Dashboard de Análise de CAC';
+        default: return 'Dashboard de Vendas';
+    }
   }
 
   if (loading) return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Carregando dados...</div>;
@@ -174,7 +207,6 @@ export default function App() {
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex font-sans">
-      {/* --- MELHORIA 3: Passa a nova função para a Sidebar --- */}
       <Sidebar activePage={activePage} setActivePage={handlePageChange} />
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">

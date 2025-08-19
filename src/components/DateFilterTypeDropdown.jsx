@@ -15,7 +15,7 @@ const DateFilterTypeDropdown = ({ value, onChange }) => {
         className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
       >
         <option value="custom_created_date">Criação do Lead</option>
-        <option value="won_time">Ganho do Negócio</option>
+        <option value="any_activity">Qualquer Movimentação</option> 
         {/* Adicione outras opções aqui se necessário */}
       </select>
     </div>
