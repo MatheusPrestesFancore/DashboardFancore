@@ -20,6 +20,7 @@ const initialFiltersState = {
   startDate: '',
   endDate: '',
   origem: 'Todas',
+  dateFilterType: 'custom_created_date',
 };
 
 export default function App() {

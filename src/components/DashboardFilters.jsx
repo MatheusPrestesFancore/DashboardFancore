@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
+import DateFilterTypeDropdown from './DateFilterTypeDropdown'; // Importa o novo componente
 
-const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) => { // 1. Recebe 'origens' como prop
+const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) => {
+  // Memoiza a lista de responsáveis com base na página ativa
   const responsaveis = useMemo(() => {
     let key = 'Responsável';
     if (activePage === 'sdr') key = 'Responsável SDR';
@@ -9,18 +11,23 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
     return ['Todos', ...new Set(data.map(d => d[key]).filter(Boolean))];
   }, [data, activePage]);
 
+  // Memoiza a lista de etapas
   const etapas = useMemo(() => ['Todas', ...new Set(data.map(d => d['Etapa Atual']).filter(Boolean))], [data]);
 
+  // Função genérica para atualizar o estado dos filtros
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  // Define a visibilidade de filtros específicos com base na página
   const showEtapaFilter = !['sdr', 'closer', 'cac'].includes(activePage);
+  const showDateFilterType = ['sdr', 'closer'].includes(activePage); // Mostra o novo dropdown apenas em 'sdr' e 'closer'
 
-   return (
+  return (
     <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-8">
-      {/* O grid se ajustará automaticamente */}
       <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end`}>
+        
+        {/* Filtro de Responsável */}
         <div>
           <label htmlFor="responsavel" className="block text-sm font-medium text-gray-400 mb-1">Responsável</label>
           <select 
@@ -33,6 +40,7 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
           </select>
         </div>
 
+        {/* Filtro de Origem */}
         <div>
           <label htmlFor="origem" className="block text-sm font-medium text-gray-400 mb-1">Origem</label>
           <select 
@@ -45,18 +53,30 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
           </select>
         </div>
         
+        {/* Filtro de Etapa (Condicional) */}
         {showEtapaFilter && (
-          // ... seu filtro de Etapa (sem alterações)
+          <div>
+            <label htmlFor="etapa" className="block text-sm font-medium text-gray-400 mb-1">Etapa Atual</label>
+            <select 
+              id="etapa" 
+              value={filters.etapa} 
+              onChange={e => handleFilterChange('etapa', e.target.value)} 
+              className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              {etapas.map(e => <option key={e} value={e}>{e}</option>)}
+            </select>
+          </div>
         )}
 
-        {/* 3. Renderiza o novo componente condicionalmente */}
+        {/* NOVO: Filtro de Tipo de Data (Condicional) */}
         {showDateFilterType && (
           <DateFilterTypeDropdown
-            value={filters.dateFilterType} // Passa o valor do estado para o componente
-            onChange={value => handleFilterChange('dateFilterType', value)} // Passa a função para atualizar o estado
+            value={filters.dateFilterType}
+            onChange={value => handleFilterChange('dateFilterType', value)}
           />
         )}
 
+        {/* Filtro de Data de Início */}
         <div>
           <label htmlFor="startDate" className="block text-sm font-medium text-gray-400 mb-1">Data de Início</label>
           <input 
@@ -67,6 +87,8 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
             className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500" 
           />
         </div>
+
+        {/* Filtro de Data de Fim */}
         <div>
           <label htmlFor="endDate" className="block text-sm font-medium text-gray-400 mb-1">Data de Fim</label>
           <input 
@@ -77,6 +99,7 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
             className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500" 
           />
         </div>
+        
       </div>
     </div>
   );
