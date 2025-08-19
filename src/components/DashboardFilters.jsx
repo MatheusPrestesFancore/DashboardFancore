@@ -17,9 +17,9 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
 
   const showEtapaFilter = !['sdr', 'closer', 'cac'].includes(activePage);
 
-  return (
+   return (
     <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-8">
-      {/* Ajustado o grid para acomodar o novo filtro */}
+      {/* O grid se ajustará automaticamente */}
       <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end`}>
         <div>
           <label htmlFor="responsavel" className="block text-sm font-medium text-gray-400 mb-1">Responsável</label>
@@ -33,7 +33,6 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
           </select>
         </div>
 
-        {/* --- NOVO FILTRO DE ORIGEM ADICIONADO AQUI --- */}
         <div>
           <label htmlFor="origem" className="block text-sm font-medium text-gray-400 mb-1">Origem</label>
           <select 
@@ -47,17 +46,15 @@ const DashboardFilters = ({ data, filters, setFilters, activePage, origens }) =>
         </div>
         
         {showEtapaFilter && (
-          <div>
-            <label htmlFor="etapa" className="block text-sm font-medium text-gray-400 mb-1">Etapa Atual</label>
-            <select 
-              id="etapa" 
-              value={filters.etapa} 
-              onChange={e => handleFilterChange('etapa', e.target.value)} 
-              className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm p-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              {etapas.map(e => <option key={e} value={e}>{e}</option>)}
-            </select>
-          </div>
+          // ... seu filtro de Etapa (sem alterações)
+        )}
+
+        {/* 3. Renderiza o novo componente condicionalmente */}
+        {showDateFilterType && (
+          <DateFilterTypeDropdown
+            value={filters.dateFilterType} // Passa o valor do estado para o componente
+            onChange={value => handleFilterChange('dateFilterType', value)} // Passa a função para atualizar o estado
+          />
         )}
 
         <div>
