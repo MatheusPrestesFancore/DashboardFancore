@@ -198,7 +198,7 @@ export default function App() {
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex font-sans">
+    <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen flex font-sans">
       {/* ALTERADO: Passamos o novo estado 'isSidebarOpen' para o componente Sidebar */}
       <Sidebar 
         activePage={activePage} 

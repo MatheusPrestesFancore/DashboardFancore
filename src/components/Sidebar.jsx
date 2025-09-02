@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 // ALTERADO: O componente NavItem agora também recebe 'isOpen' para saber se mostra o texto.
 const NavItem = ({ page, activePage, setActivePage, icon, children, isOpen }) => (
@@ -38,6 +39,10 @@ const Sidebar = ({ activePage, setActivePage, isOpen }) => {
         <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />} isOpen={isOpen}>Ranking SDR</NavItem>
         <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<DollarSign size={20} />} isOpen={isOpen}>Análise CAC</NavItem>
       </nav>
+      
+      <div className="mt-auto flex justify-center">
+            <ThemeToggle />
+        </div>
     </aside>
   );
 };
