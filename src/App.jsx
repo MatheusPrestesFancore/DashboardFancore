@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardFilters from './components/DashboardFilters';
@@ -7,6 +9,9 @@ import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
 import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
+// NOVO: Importando o ícone para o botão da sidebar
+import { Bars3Icon } from '@heroicons/react/24/outline';
+
 
 // URLs das planilhas
 const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
@@ -19,7 +24,7 @@ const initialFiltersState = {
   startDate: '',
   endDate: '',
   origem: 'Todas',
-  dateFilterType: 'custom_created_date', // Valor inicial para o novo filtro
+  dateFilterType: 'custom_created_date', 
 };
 
 export default function App() {
@@ -29,7 +34,15 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activePage, setActivePage] = useState('cac');
-  const [filters, setFilters] = useState(initialFiltersState);
+  const [filters, setFilters] = useState(initialFiltersState); 
+  
+  // NOVO: Estado para controlar a visibilidade da sidebar. Começa aberta.
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+
+  // NOVO: Função para abrir/fechar a sidebar
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
 
   const handlePageChange = (page) => {
     setActivePage(page);
@@ -102,6 +115,7 @@ export default function App() {
   }, []);
 
   const origens = useMemo(() => {
+    // ... seu useMemo de origens (sem alterações) ...
     const tags = new Set();
     allData.forEach(lead => {
       const match = lead.Nome_Lead?.match(/\[(.*?)\]/);
@@ -113,71 +127,51 @@ export default function App() {
   }, [allData]);
   
   const filteredData = useMemo(() => {
-    // Função auxiliar para converter "DD/MM/AAAA" em um objeto Date
+    // ... seu useMemo de filteredData (sem alterações) ...
     const parseDate = (dateString) => {
       if (!dateString || typeof dateString !== 'string') return null;
       const parts = dateString.split(' ')[0].split('/');
       if (parts.length !== 3) return null;
-      // new Date(ano, mês - 1, dia)
       return new Date(parts[2], parts[1] - 1, parts[0]);
     };
-
     let data = allData;
-
-    // Filtro de Responsável
     if (filters.responsavel !== 'Todos') {
       let key = 'Responsável';
       if (activePage === 'sdr') key = 'Responsável SDR';
       if (activePage === 'closer') key = 'Responsável Closer';
       data = data.filter(d => d[key] === filters.responsavel);
     }
-
-    // Filtro de Etapa
     if (filters.etapa !== 'Todos' && !['sdr', 'closer', 'cac'].includes(activePage)) {
       data = data.filter(d => d['Etapa Atual'] === filters.etapa);
     }
-
-    // Filtro de Origem
     if (filters.origem !== 'Todas') {
       data = data.filter(d => d.Nome_Lead?.includes(`[${filters.origem}]`));
     }
-
-    // --- NOVO FILTRO DE DATA ATUALIZADO ---
     if (filters.startDate && filters.endDate) {
       const startDate = new Date(filters.startDate);
       const endDate = new Date(filters.endDate);
-      
-      // Adiciona 23:59:59 ao final do dia para incluir o dia todo no filtro
       endDate.setHours(23, 59, 59, 999);
-
       data = data.filter(d => {
         if (filters.dateFilterType === 'any_activity') {
-          // 👇 IMPORTANTE: Verifique e ajuste os nomes das colunas aqui 👇
           const datasParaChecar = [
-            d['Data_Criacao'], // Já sabemos que esta existe
-            d['won_time'],      // Exemplo: data de ganho
-            d['lost_time'],     // Exemplo: data de perda
-            d['update_time'],   // Exemplo: data de última atualização
-          ].map(parseDate); // Converte todas para o formato Date
-
-          // Retorna true se QUALQUER uma das datas válidas estiver no intervalo
+            d['Data_Criacao'],
+            d['won_time'],
+            d['lost_time'],
+            d['update_time'],
+          ].map(parseDate);
           return datasParaChecar.some(date => date && date >= startDate && date <= endDate);
-        
         } else {
-          // Lógica para filtros de coluna única (Criação, Ganho, etc.)
-          // O nome da coluna vem direto do dropdown
           const columnName = filters.dateFilterType === 'custom_created_date' ? 'Data_Criacao' : filters.dateFilterType;
           const leadDate = parseDate(d[columnName]);
           return leadDate && leadDate >= startDate && leadDate <= endDate;
         }
       });
     }
-
     return data;
   }, [allData, filters, activePage]);
 
   const renderPage = () => {
-    // ... seu renderPage (sem alterações)
+    // ... seu renderPage (sem alterações) ...
     switch (activePage) {
       case 'automation': return <AutomationDashboard data={filteredData} />;
       case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
@@ -190,7 +184,7 @@ export default function App() {
   };
   
   const getPageTitle = () => {
-    // ... seu getPageTitle (sem alterações)
+    // ... seu getPageTitle (sem alterações) ...
     switch (activePage) {
         case 'automation': return 'Dashboard de Automação';
         case 'funil': return 'Dashboard Funil de Vendas';
@@ -207,13 +201,33 @@ export default function App() {
 
   return (
     <div className="bg-gray-900 text-white min-h-screen flex font-sans">
-      <Sidebar activePage={activePage} setActivePage={handlePageChange} />
+      {/* ALTERADO: Passamos o novo estado 'isSidebarOpen' para o componente Sidebar */}
+      <Sidebar 
+        activePage={activePage} 
+        setActivePage={handlePageChange}
+        isOpen={isSidebarOpen} 
+      />
+
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <header className="mb-8">
-            <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
-            <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
+            {/* ALTERADO: Adicionado um div flex para alinhar o título e o novo botão */}
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
+                    <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
+                </div>
+                {/* NOVO: Botão que chama a função toggleSidebar */}
+                <button 
+                  onClick={toggleSidebar}
+                  className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                  aria-label="Toggle sidebar"
+                >
+                    <Bars3Icon className="h-6 w-6 text-white" />
+                </button>
+            </div>
           </header>
+
           {activePage !== 'ranking' && activePage !== 'cac' &&
             <DashboardFilters 
               data={allData} 

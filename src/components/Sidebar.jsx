@@ -1,32 +1,42 @@
 import React from 'react';
 import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign } from 'lucide-react';
 
-const NavItem = ({ page, activePage, setActivePage, icon, children }) => (
-  // --- CORES CORRIGIDAS PARA LARANJA ---
+// ALTERADO: O componente NavItem agora também recebe 'isOpen' para saber se mostra o texto.
+const NavItem = ({ page, activePage, setActivePage, icon, children, isOpen }) => (
   <button 
     onClick={() => setActivePage(page)} 
-    className={`flex items-center space-x-3 p-3 rounded-lg w-full text-left transition-colors ${activePage === page ? 'bg-orange-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+    // ALTERADO: Centraliza o ícone quando a sidebar está fechada (isOpen é false)
+    className={`flex items-center p-3 rounded-lg w-full text-left transition-colors ${activePage === page ? 'bg-orange-600 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'} ${isOpen ? 'space-x-3' : 'justify-center'}`}
   >
     {icon}
-    <span>{children}</span>
+    {/* ALTERADO: O texto (children) só é renderizado se a sidebar estiver aberta */}
+    {isOpen && <span>{children}</span>}
   </button>
 );
 
-const Sidebar = ({ activePage, setActivePage }) => {
+// ALTERADO: O componente Sidebar agora recebe a prop 'isOpen'
+const Sidebar = ({ activePage, setActivePage, isOpen }) => {
   return (
-    // --- CORES CORRIGIDAS ---
-    <aside className="w-64 bg-gray-800 p-4 flex-shrink-0">
-      <div className="flex items-center space-x-2 mb-10">
-        <GitBranch className="text-orange-500" />
-        <h1 className="text-xl font-bold text-white">Análise Fancore</h1>
+    // ALTERADO: A largura agora é dinâmica e uma transição foi adicionada para suavizar a animação
+    <aside className={`flex-shrink-0 bg-gray-800 p-4 transition-all duration-300 ease-in-out ${isOpen ? 'w-64' : 'w-20'}`}>
+      
+      {/* ALTERADO: Centralizamos o contêiner do logo */}
+      <div className={`flex items-center mb-10 ${isOpen ? 'space-x-2' : 'justify-center'}`}>
+        <GitBranch className="text-orange-500 flex-shrink-0" />
+        {/* ALTERADO: O título some suavemente quando a sidebar fecha */}
+        <h1 className={`text-xl font-bold text-white whitespace-nowrap transition-opacity duration-200 ${!isOpen && 'opacity-0 hidden'}`}>
+          Análise Fancore
+        </h1>
       </div>
+
       <nav className="space-y-2">
-        <NavItem page="automation" activePage={activePage} setActivePage={setActivePage} icon={<LayoutDashboard size={20} />}>Automação</NavItem>
-        <NavItem page="funil" activePage={activePage} setActivePage={setActivePage} icon={<Filter size={20} />}>Funil de Vendas</NavItem>
-        <NavItem page="sdr" activePage={activePage} setActivePage={setActivePage} icon={<Users size={20} />}>Performance SDR</NavItem>
-        <NavItem page="closer" activePage={activePage} setActivePage={setActivePage} icon={<Award size={20} />}>Performance Closer</NavItem>
-        <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />}>Ranking SDR</NavItem>
-        <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<DollarSign size={20} />}>Análise CAC</NavItem>
+        {/* ALTERADO: Passamos a prop 'isOpen' para cada NavItem */}
+        <NavItem page="automation" activePage={activePage} setActivePage={setActivePage} icon={<LayoutDashboard size={20} />} isOpen={isOpen}>Automação</NavItem>
+        <NavItem page="funil" activePage={activePage} setActivePage={setActivePage} icon={<Filter size={20} />} isOpen={isOpen}>Funil de Vendas</NavItem>
+        <NavItem page="sdr" activePage={activePage} setActivePage={setActivePage} icon={<Users size={20} />} isOpen={isOpen}>Performance SDR</NavItem>
+        <NavItem page="closer" activePage={activePage} setActivePage={setActivePage} icon={<Award size={20} />} isOpen={isOpen}>Performance Closer</NavItem>
+        <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />} isOpen={isOpen}>Ranking SDR</NavItem>
+        <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<DollarSign size={20} />} isOpen={isOpen}>Análise CAC</NavItem>
       </nav>
     </aside>
   );
