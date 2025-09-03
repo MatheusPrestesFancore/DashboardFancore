@@ -26,7 +26,7 @@ const CacAnalysisDashboard = ({ data }) => {
 
         const totalCac = sales > 0 ? totalInvestment / sales : 0;
         const marketingCac = sales > 0 ? marketingInvestment / sales : 0;
-        const cpl = leads > 0 ? investment_marketing / leads : 0;
+        const cpl = leads > 0 ? marketingInvestment / leads : 0;
         
         return { totalInvestment, marketingInvestment, leads, sales, totalCac, marketingCac, cpl, revenue };
     }, [data]);
