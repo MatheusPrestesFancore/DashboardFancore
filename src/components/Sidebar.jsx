@@ -1,6 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 // ALTERADO: O componente NavItem agora também recebe 'isOpen' para saber se mostra o texto.
 const NavItem = ({ page, activePage, setActivePage, icon, children, isOpen }) => (
@@ -39,9 +39,20 @@ const Sidebar = ({ activePage, setActivePage, isOpen }) => {
         <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />} isOpen={isOpen}>Ranking SDR</NavItem>
         <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<DollarSign size={20} />} isOpen={isOpen}>Análise CAC</NavItem>
       </nav>
-      
-      <div className="mt-auto flex justify-center">
-            <ThemeToggle />
+              {/* NOVO: Botão para alternar a sidebar, posicionado no final */}
+        <div className={`mt-auto pt-4 border-t border-gray-700 ${isOpen ? 'flex justify-end' : 'flex justify-center'}`}>
+            <button
+                onClick={toggleSidebar}
+                className="p-2 rounded-md text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                aria-label="Toggle sidebar"
+            >
+                {/* Muda o ícone dependendo do estado da sidebar */}
+                {isOpen ? (
+                    <ChevronLeftIcon className="h-6 w-6" />
+                ) : (
+                    <ChevronRightIcon className="h-6 w-6" />
+                )}
+            </button>
         </div>
     </aside>
   );

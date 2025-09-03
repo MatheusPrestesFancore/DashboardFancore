@@ -7,8 +7,6 @@ import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
 import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
-// NOVO: Importando o ícone para o botão da sidebar
-import { Bars3Icon } from '@heroicons/react/24/outline';
 
 
 // URLs das planilhas
@@ -215,14 +213,6 @@ export default function App() {
                     <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
                     <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
                 </div>
-                {/* NOVO: Botão que chama a função toggleSidebar */}
-                <button 
-                  onClick={toggleSidebar}
-                  className="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                  aria-label="Toggle sidebar"
-                >
-                    <Bars3Icon className="h-6 w-6 text-white" />
-                </button>
             </div>
           </header>
 
