@@ -1,7 +1,8 @@
 // src/components/Sidebar.jsx
 
 import React from 'react';
-import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign } from 'lucide-react';
+// NOVO: Importe o ícone 'Map'
+import { LayoutDashboard, Users, GitBranch, Filter, Award, Trophy, DollarSign, Map } from 'lucide-react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 
@@ -32,6 +33,8 @@ const Sidebar = ({ activePage, setActivePage, isOpen, toggleSidebar }) => {
                 <NavItem page="closer" activePage={activePage} setActivePage={setActivePage} icon={<Award size={20} />} isOpen={isOpen}>Performance Closer</NavItem>
                 <NavItem page="ranking" activePage={activePage} setActivePage={setActivePage} icon={<Trophy size={20} />} isOpen={isOpen}>Ranking SDR</NavItem>
                 <NavItem page="cac" activePage={activePage} setActivePage={setActivePage} icon={<DollarSign size={20} />} isOpen={isOpen}>Análise CAC</NavItem>
+                {/* NOVO: Item de menu para o Mapa de Vendas */}
+                <NavItem page="map" activePage={activePage} setActivePage={setActivePage} icon={<Map size={20} />} isOpen={isOpen}>Mapa de Vendas</NavItem>
             </nav>
         </div>
 

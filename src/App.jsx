@@ -9,11 +9,16 @@ import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
 import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
+// NOVO: Importe a nova página do mapa
+import MapaVendasDashboard from './pages/MapaVendasDashboard';
 
-// URLs das planilhas (mantidas como no seu original)
+// URLs das planilhas
 const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
+// NOVO: Adicione a URL da sua nova planilha/aba de mapa aqui
+const GOOGLE_SHEET_MAP_CSV_URL = 'COLE_A_URL_DA_SUA_PLANILHA_DE_MAPA_AQUI';
+
 
 const initialFiltersState = {
   responsavel: 'Todos',
@@ -21,17 +26,19 @@ const initialFiltersState = {
   startDate: '',
   endDate: '',
   origem: 'Todas',
-  dateFilterType: 'custom_created_date',
+  dateFilterType: 'custom_created_date', 
 };
 
 export default function App() {
   const [allData, setAllData] = useState([]);
   const [goalsData, setGoalsData] = useState([]);
   const [cacData, setCacData] = useState([]);
+  // NOVO: Estado para armazenar os dados do mapa
+  const [mapData, setMapData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activePage, setActivePage] = useState('cac');
-  const [filters, setFilters] = useState(initialFiltersState);
+  const [filters, setFilters] = useState(initialFiltersState); 
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -43,9 +50,8 @@ export default function App() {
     setFilters(initialFiltersState);
   };
 
-  // ... (toda a sua lógica de useEffect e useMemo continua aqui, sem alterações)
   useEffect(() => {
-    const parseCsv = (csvText, isCac = false) => {
+    const parseCsv = (csvText, dataType = 'leads') => {
         if (!csvText) return [];
         const parseCsvLine = (line) => {
             const result = [];
@@ -72,19 +78,20 @@ export default function App() {
             const cleaned = value.replace(/^"|"$/g, '');
             return parseInt(cleaned, 10) || 0;
         };
+        
         return lines.slice(1).map(line => {
             const values = parseCsvLine(line);
-            const obj = headers.reduce((obj, header, index) => {
-                obj[header] = values[index] ? values[index].trim() : '';
-                return obj;
+            const obj = headers.reduce((acc, header, index) => {
+                acc[header] = values[index] ? values[index].trim() : '';
+                return acc;
             }, {});
-            if (isCac) {
+
+            // Lógica de parsing baseada no tipo de dado
+            if (dataType === 'cac') {
                 return {
                     month: obj['Mês/Ano'],
-                    // Este é o Custo Total GERAL, vindo da nova coluna
-                    investment_total: parseCurrency(obj['Investimento Total']), 
-                    // Este é o custo APENAS de Marketing, vindo da coluna que foi renomeada
-                    investment_marketing: parseCurrency(obj['Investimento Marketing']), 
+                    investment_total: parseCurrency(obj['Investimento Total']),
+                    investment_marketing: parseCurrency(obj['Investimento Marketing']),
                     leads: parseIntValue(obj['Total de Leads']),
                     sales: parseIntValue(obj['Total de Vendas']),
                     revenue: parseCurrency(obj['Receita Total']),
@@ -92,17 +99,35 @@ export default function App() {
                     cac: parseCurrency(obj['CAC (Custo/Cliente)']),
                 };
             }
+
+            if (dataType === 'map') {
+                return {
+                    id: obj['id'],
+                    city: obj['cidade'],
+                    state: obj['estado'],
+                    status: obj['status'],
+                    lat: parseFloat(obj['latitude']),
+                    lng: parseFloat(obj['longitude']),
+                };
+            }
+            
+            // Retorno padrão para 'leads' e 'goals'
             return obj;
-        }).filter(row => isCac ? row.month && row.month.trim() !== '' : true);
+        }).filter(row => row && Object.values(row).some(val => val !== null && val !== ''));
     };
+    
     Promise.all([
         fetch(GOOGLE_SHEET_LEADS_CSV_URL).then(res => res.ok ? res.text() : ''),
         fetch(GOOGLE_SHEET_GOALS_CSV_URL).then(res => res.ok ? res.text() : ''),
-        fetch(GOOGLE_SHEET_CAC_CSV_URL).then(res => res.ok ? res.text() : '')
-    ]).then(([leadsCsv, goalsCsv, newCacCsv]) => {
-        setAllData(parseCsv(leadsCsv));
-        setGoalsData(parseCsv(goalsCsv));
-        setCacData(parseCsv(newCacCsv, true));
+        fetch(GOOGLE_SHEET_CAC_CSV_URL).then(res => res.ok ? res.text() : ''),
+        // NOVO: Fetch para os dados do mapa
+        fetch(GOOGLE_SHEET_MAP_CSV_URL).then(res => res.ok ? res.text() : '')
+    ]).then(([leadsCsv, goalsCsv, cacCsv, mapCsv]) => {
+        setAllData(parseCsv(leadsCsv, 'leads'));
+        setGoalsData(parseCsv(goalsCsv, 'goals'));
+        setCacData(parseCsv(cacCsv, 'cac'));
+        // NOVO: Seta o estado com os dados do mapa parseados
+        setMapData(parseCsv(mapCsv, 'map'));
         setLoading(false);
     }).catch(err => {
         console.error(err);
@@ -149,10 +174,7 @@ export default function App() {
       data = data.filter(d => {
         if (filters.dateFilterType === 'any_activity') {
           const datasParaChecar = [
-            d['Data_Criacao'],
-            d['won_time'],
-            d['lost_time'],
-            d['update_time'],
+            d['Data_Criacao'], d['won_time'], d['lost_time'], d['update_time'],
           ].map(parseDate);
           return datasParaChecar.some(date => date && date >= startDate && date <= endDate);
         } else {
@@ -173,6 +195,8 @@ export default function App() {
       case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={cacData} />;
+      // NOVO: Renderiza a página do mapa com os dados corretos
+      case 'map': return <MapaVendasDashboard data={mapData} />;
       default: return <AutomationDashboard data={filteredData} />;
     }
   };
@@ -185,6 +209,8 @@ export default function App() {
         case 'closer': return 'Dashboard de Performance Closer';
         case 'ranking': return 'Ranking de SDRs';
         case 'cac': return 'Dashboard de Análise de CAC';
+        // NOVO: Título para a página do mapa
+        case 'map': return 'Mapa de Vendas';
         default: return 'Dashboard de Vendas';
     }
   }
@@ -206,7 +232,7 @@ export default function App() {
             <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
             <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
           </header>
-          {activePage !== 'ranking' && activePage !== 'cac' &&
+          {activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' &&
             <DashboardFilters 
               data={allData} 
               filters={filters} 
