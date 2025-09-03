@@ -4,7 +4,6 @@ import { TrendingUp, UserCheck, CalendarCheck, Clock, Users } from 'lucide-react
 import { QUALIFIED_STAGES } from '../utils/helpers';
 
 const SdrPerformanceDashboard = ({ data }) => {
-  // ... (seu código da página de performance de SDR permanece o mesmo)
   const parseDate = (dateStr) => {
     const parts = dateStr?.split(' ')[0].split('/');
     if (parts?.length !== 3) return null;
@@ -58,33 +57,36 @@ const SdrPerformanceDashboard = ({ data }) => {
 
   return (
     <div className="space-y-8">
+      {/* Nenhuma alteração necessária aqui, o grid já é responsivo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KpiCard title="Lead > Qualificado" value={taxaQualificacao} unit="%" icon={<UserCheck />} color="cyan" />
         <KpiCard title="Qualificado > Agendado" value={taxaAgendamento} unit="%" icon={<CalendarCheck />} color="orange" />
         <KpiCard title="Agendado > Realizado" value={taxaComparecimento} unit="%" icon={<TrendingUp />} color="yellow" />
         <KpiCard title="Tempo Médio Qualif." value={timeToQualify} unit="dias" icon={<Clock />} color="sky" />
       </div>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      {/* ALTERADO: Padding responsivo */}
+      <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center"><Users size={20} className="mr-2 text-orange-500"/> Ranking de SDRs (por Agendamentos)</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-400">
               <thead className="text-xs text-gray-300 uppercase bg-gray-700">
                 <tr>
-                  <th className="px-4 py-3">Pos.</th>
-                  <th className="px-4 py-3">SDR</th>
-                  <th className="px-4 py-3 text-center">Leads Trabalhados</th>
-                  <th className="px-4 py-3 text-center">Reuniões Agendadas</th>
-                  <th className="px-4 py-3 text-center">Taxa de Agend. (%)</th>
+                  {/* ALTERADO: Padding horizontal das células reduzido em telas pequenas (px-2) */}
+                  <th className="px-2 sm:px-4 py-3">Pos.</th>
+                  <th className="px-2 sm:px-4 py-3">SDR</th>
+                  <th className="px-2 sm:px-4 py-3 text-center">Leads Trab.</th>
+                  <th className="px-2 sm:px-4 py-3 text-center">Reuniões Agend.</th>
+                  <th className="px-2 sm:px-4 py-3 text-center">Taxa Agend. (%)</th>
                 </tr>
               </thead>
               <tbody>
                 {sdrRanking.map((sdr, index) => (
                   <tr key={sdr.name} className="border-b border-gray-700 hover:bg-gray-700/50">
-                    <td className="px-4 py-4 font-bold text-lg text-white">#{index + 1}</td>
-                    <td className="px-4 py-4 font-medium text-white">{sdr.name}</td>
-                    <td className="px-4 py-4 text-center">{sdr.leads}</td>
-                    <td className="px-4 py-4 text-center text-lg font-bold text-orange-400">{sdr.agendados}</td>
-                    <td className="px-4 py-4 text-center font-bold text-cyan-400">{sdr.taxa}</td>
+                    <td className="px-2 sm:px-4 py-4 font-bold text-lg text-white">#{index + 1}</td>
+                    <td className="px-2 sm:px-4 py-4 font-medium text-white whitespace-nowrap">{sdr.name}</td>
+                    <td className="px-2 sm:px-4 py-4 text-center">{sdr.leads}</td>
+                    <td className="px-2 sm:px-4 py-4 text-center text-lg font-bold text-orange-400">{sdr.agendados}</td>
+                    <td className="px-2 sm:px-4 py-4 text-center font-bold text-cyan-400">{sdr.taxa}</td>
                   </tr>
                 ))}
               </tbody>

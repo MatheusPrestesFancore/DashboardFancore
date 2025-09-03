@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import React, { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardFilters from './components/DashboardFilters';
@@ -9,16 +7,14 @@ import CloserPerformanceDashboard from './pages/CloserPerformanceDashboard';
 import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
-// NOVO: Importe a nova página do mapa
 import MapaVendasDashboard from './pages/MapaVendasDashboard';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 
 // URLs das planilhas
 const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
-// NOVO: Adicione a URL da sua nova planilha/aba de mapa aqui
 const GOOGLE_SHEET_MAP_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=469774215&single=true&output=csv';
-
 
 const initialFiltersState = {
   responsavel: 'Todos',
@@ -33,7 +29,6 @@ export default function App() {
   const [allData, setAllData] = useState([]);
   const [goalsData, setGoalsData] = useState([]);
   const [cacData, setCacData] = useState([]);
-  // NOVO: Estado para armazenar os dados do mapa
   const [mapData, setMapData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -48,7 +43,16 @@ export default function App() {
   const handlePageChange = (page) => {
     setActivePage(page);
     setFilters(initialFiltersState);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
+
+  useEffect(() => {
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, []);
 
   useEffect(() => {
     const parseCsv = (csvText, dataType = 'leads') => {
@@ -86,7 +90,6 @@ export default function App() {
                 return acc;
             }, {});
 
-            // Lógica de parsing baseada no tipo de dado
             if (dataType === 'cac') {
                 return {
                     month: obj['Mês/Ano'],
@@ -111,7 +114,6 @@ export default function App() {
                 };
             }
             
-            // Retorno padrão para 'leads' e 'goals'
             return obj;
         }).filter(row => row && Object.values(row).some(val => val !== null && val !== ''));
     };
@@ -120,13 +122,11 @@ export default function App() {
         fetch(GOOGLE_SHEET_LEADS_CSV_URL).then(res => res.ok ? res.text() : ''),
         fetch(GOOGLE_SHEET_GOALS_CSV_URL).then(res => res.ok ? res.text() : ''),
         fetch(GOOGLE_SHEET_CAC_CSV_URL).then(res => res.ok ? res.text() : ''),
-        // NOVO: Fetch para os dados do mapa
         fetch(GOOGLE_SHEET_MAP_CSV_URL).then(res => res.ok ? res.text() : '')
     ]).then(([leadsCsv, goalsCsv, cacCsv, mapCsv]) => {
         setAllData(parseCsv(leadsCsv, 'leads'));
         setGoalsData(parseCsv(goalsCsv, 'goals'));
         setCacData(parseCsv(cacCsv, 'cac'));
-        // NOVO: Seta o estado com os dados do mapa parseados
         setMapData(parseCsv(mapCsv, 'map'));
         setLoading(false);
     }).catch(err => {
@@ -195,7 +195,6 @@ export default function App() {
       case 'closer': return <CloserPerformanceDashboard data={filteredData} />;
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={cacData} />;
-      // NOVO: Renderiza a página do mapa com os dados corretos
       case 'map': return <MapaVendasDashboard data={mapData} />;
       default: return <AutomationDashboard data={filteredData} />;
     }
@@ -209,7 +208,6 @@ export default function App() {
         case 'closer': return 'Dashboard de Performance Closer';
         case 'ranking': return 'Ranking de SDRs';
         case 'cac': return 'Dashboard de Análise de CAC';
-        // NOVO: Título para a página do mapa
         case 'map': return 'Mapa de Vendas';
         default: return 'Dashboard de Vendas';
     }
@@ -219,30 +217,42 @@ export default function App() {
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen flex font-sans">
+    <div className="bg-gray-900 text-white min-h-screen flex font-sans relative">
       <Sidebar 
         activePage={activePage} 
         setActivePage={handlePageChange}
         isOpen={isSidebarOpen} 
         toggleSidebar={toggleSidebar} 
       />
-      <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
-            <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
-          </header>
-          {activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' &&
-            <DashboardFilters 
-              data={allData} 
-              filters={filters} 
-              setFilters={setFilters} 
-              activePage={activePage}
-              origens={origens} 
-            />}
-          {renderPage()}
+      <main className={`flex-1 overflow-y-auto transition-all duration-300 ease-in-out ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
+        <div className="p-4 sm:p-8">
+            <div className="max-w-7xl mx-auto">
+              
+              <header className="mb-8 lg:hidden flex justify-between items-center">
+                  <h1 className="text-2xl font-bold text-white">{getPageTitle()}</h1>
+                  <button onClick={toggleSidebar} className="p-2">
+                      <Bars3Icon className="h-6 w-6 text-white"/>
+                  </button>
+              </header>
+
+              <header className="mb-8 hidden lg:block">
+                <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
+                <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
+              </header>
+
+              {activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' &&
+                <DashboardFilters 
+                  data={allData} 
+                  filters={filters} 
+                  setFilters={setFilters} 
+                  activePage={activePage}
+                  origens={origens} 
+                />}
+              {renderPage()}
+            </div>
         </div>
       </main>
     </div>
   );
 }
+

@@ -1,5 +1,3 @@
-// src/pages/MapaVendasDashboard.jsx
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { BuildingStorefrontIcon, MapPinIcon } from '@heroicons/react/24/solid';
@@ -65,7 +63,8 @@ const MapaVendasDashboard = ({ data }) => {
         {icon}
         <span className="ml-2">{title} ({cities.length})</span>
       </h3>
-      <div className="max-h-60 overflow-y-auto pr-2">
+      {/* ALTERADO: Altura máxima da lista ajustada para telas menores */}
+      <div className="max-h-48 md:max-h-60 overflow-y-auto pr-2">
         <div className="space-y-2">
           {cities.map(city => (
             <button
@@ -82,7 +81,8 @@ const MapaVendasDashboard = ({ data }) => {
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[75vh]">
+    // ALTERADO: A altura fixa agora só se aplica a telas grandes (lg)
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[75vh]">
       {/* Coluna das Tabelas */}
       <div className="lg:col-span-1 flex flex-col gap-6">
         <CityList
@@ -100,10 +100,10 @@ const MapaVendasDashboard = ({ data }) => {
       </div>
 
       {/* Coluna do Mapa */}
-      <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-lg">
+      {/* ALTERADO: Adicionada uma altura fixa para mobile (h-96) e altura total para telas grandes (lg:h-full) */}
+      <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-lg h-96 lg:h-full">
         <MapContainer center={initialPosition} zoom={4} style={{ height: '100%', width: '100%' }} scrollWheelZoom={true}>
           <ChangeView center={selectedCity ? [selectedCity.lat, selectedCity.lng] : initialPosition} zoom={selectedCity ? 13 : 4} />
-          {/* ALTERADO: A URL do TileLayer foi trocada para um tema mais claro e moderno */}
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'

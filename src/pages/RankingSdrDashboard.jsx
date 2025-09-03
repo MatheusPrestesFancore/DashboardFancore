@@ -4,7 +4,6 @@ import SdrEvolutionChart from '../components/SdrEvolutionChart';
 import SdrWeeklyEvolutionChart from '../components/SdrWeeklyEvolutionChart';
 
 const RankingSdrDashboard = ({ allData, filters }) => {
-  // ... (seu código da página de ranking permanece o mesmo)
   const [selectedSdrs, setSelectedSdrs] = useState([]);
   const [chartView, setChartView] = useState('daily');
 
@@ -49,11 +48,12 @@ const RankingSdrDashboard = ({ allData, filters }) => {
 
   return (
     <div className="space-y-8">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      {/* ALTERADO: Padding responsivo */}
+      <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Selecionar SDRs para Comparação</h3>
         <div className="flex flex-wrap gap-4">
           {availableSdrs.map(sdr => (
-            <label key={sdr} className="flex items-center space-x-2 cursor-pointer">
+            <label key={sdr} className="flex items-center space-x-2 cursor-pointer p-1">
               <input 
                 type="checkbox"
                 checked={selectedSdrs.includes(sdr)}
@@ -67,35 +67,38 @@ const RankingSdrDashboard = ({ allData, filters }) => {
       </div>
       {selectedSdrs.length > 0 && (
         <>
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          {/* ALTERADO: Padding responsivo */}
+          <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
             <h3 className="text-lg font-semibold text-white mb-4">Tabela Comparativa</h3>
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left text-gray-400">
                     <thead className="text-xs text-gray-300 uppercase bg-gray-700">
                         <tr>
-                            <th className="px-4 py-3">SDR</th>
-                            <th className="px-4 py-3 text-center">Leads Trabalhados</th>
-                            <th className="px-4 py-3 text-center">Reuniões Agendadas</th>
-                            <th className="px-4 py-3 text-center">Taxa de Agend. (%)</th>
+                            <th className="px-2 sm:px-4 py-3">SDR</th>
+                            <th className="px-2 sm:px-4 py-3 text-center">Leads Trab.</th>
+                            <th className="px-2 sm:px-4 py-3 text-center">Reuniões Agend.</th>
+                            <th className="px-2 sm:px-4 py-3 text-center">Taxa Agend. (%)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {rankingData.map((sdr) => (
                             <tr key={sdr.name} className="border-b border-gray-700 hover:bg-gray-700/50">
-                                <td className="px-4 py-4 font-medium text-white">{sdr.name}</td>
-                                <td className="px-4 py-4 text-center">{sdr['Leads Trabalhados']}</td>
-                                <td className="px-4 py-4 text-center font-bold text-orange-400">{sdr['Reuniões Agendadas']}</td>
-                                <td className="px-4 py-4 text-center">{sdr['Taxa de Agendamento (%)']}</td>
+                                <td className="px-2 sm:px-4 py-4 font-medium text-white whitespace-nowrap">{sdr.name}</td>
+                                <td className="px-2 sm:px-4 py-4 text-center">{sdr['Leads Trabalhados']}</td>
+                                <td className="px-2 sm:px-4 py-4 text-center font-bold text-orange-400">{sdr['Reuniões Agendadas']}</td>
+                                <td className="px-2 sm:px-4 py-4 text-center">{sdr['Taxa de Agendamento (%)']}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
           </div>
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-white">Evolução: Reuniões Agendadas</h3>
-              <div className="flex space-x-1 bg-gray-700 p-1 rounded-lg">
+          {/* ALTERADO: Padding responsivo */}
+          <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
+            {/* ALTERADO: Layout do cabeçalho do gráfico agora é responsivo */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
+              <h3 className="text-lg font-semibold text-white text-center sm:text-left">Evolução: Reuniões Agendadas</h3>
+              <div className="flex-shrink-0 flex self-center space-x-1 bg-gray-700 p-1 rounded-lg">
                 <button onClick={() => setChartView('daily')} className={`px-3 py-1 text-sm rounded-md transition-colors ${chartView === 'daily' ? 'bg-orange-600 text-white' : 'text-gray-400 hover:bg-gray-600'}`}>Diária</button>
                 <button onClick={() => setChartView('weekly')} className={`px-3 py-1 text-sm rounded-md transition-colors ${chartView === 'weekly' ? 'bg-orange-600 text-white' : 'text-gray-400 hover:bg-gray-600'}`}>Semanal</button>
               </div>
