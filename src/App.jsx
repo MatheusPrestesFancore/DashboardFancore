@@ -202,6 +202,7 @@ export default function App() {
         activePage={activePage} 
         setActivePage={handlePageChange}
         isOpen={isSidebarOpen} 
+        toggleSidebar={toggleSidebar}
       />
 
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">

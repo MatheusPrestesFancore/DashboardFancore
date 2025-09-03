@@ -53,7 +53,7 @@ const Sidebar = ({ activePage, setActivePage, isOpen }) => {
                     <ChevronRightIcon className="h-6 w-6" />
                 )}
             </button>
-        </div>
+        </div>  
     </aside>
   );
 };
