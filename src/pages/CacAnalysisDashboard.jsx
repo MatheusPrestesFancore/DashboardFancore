@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import KpiCard from '../components/KpiCard';
-import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy } from 'lucide-react';
+// NOVO: Adicionei o SpeakerphoneIcon para o novo KPI de Marketing
+import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy, SpeakerphoneIcon } from 'lucide-react';
 
 const CacAnalysisDashboard = ({ data }) => {
     const formatCurrency = (value) => {
@@ -13,34 +14,56 @@ const CacAnalysisDashboard = ({ data }) => {
 
     const totals = useMemo(() => {
         if (!data || data.length === 0) {
-            return { investment: 0, leads: 0, sales: 0, cac: 0, cpl: 0, revenue: 0 };
+            return { totalInvestment: 0, marketingInvestment: 0, leads: 0, sales: 0, totalCac: 0, marketingCac: 0, cpl: 0, revenue: 0 };
         }
-        const investment = data.reduce((sum, row) => sum + row.investment, 0);
+        
+        // ALTERADO: Agora calcula o investimento TOTAL e de MARKETING separadamente
+        const totalInvestment = data.reduce((sum, row) => sum + (row.investment_total || 0), 0);
+        const marketingInvestment = data.reduce((sum, row) => sum + (row.investment_marketing || 0), 0);
+        
         const leads = data.reduce((sum, row) => sum + row.leads, 0);
         const sales = data.reduce((sum, row) => sum + row.sales, 0);
         const revenue = data.reduce((sum, row) => sum + row.revenue, 0);
-        const cac = sales > 0 ? investment / sales : 0;
-        const cpl = leads > 0 ? investment / leads : 0;
-        return { investment, leads, sales, cac, cpl, revenue };
+
+        // ALTERADO: CAC Médio (total) usa o investimento total
+        const totalCac = sales > 0 ? totalInvestment / sales : 0;
+        
+        // NOVO: CAC Marketing usa apenas o investimento de marketing
+        const marketingCac = sales > 0 ? marketingInvestment / sales : 0;
+        
+        // ALTERADO: CPL usa o investimento total
+        const cpl = leads > 0 ? totalInvestment / leads : 0;
+        
+        return { totalInvestment, marketingInvestment, leads, sales, totalCac, marketingCac, cpl, revenue };
     }, [data]);
 
     return (
         <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <KpiCard title="Investimento Total" value={formatCurrency(totals.investment)} icon={<DollarSign />} color="orange" />
+            {/* ALTERADO: Grid ajustado para 7 ou 8 cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* ALTERADO: Este card agora aponta para o verdadeiro Investimento Total */}
+                <KpiCard title="Investimento Total" value={formatCurrency(totals.totalInvestment)} icon={<DollarSign />} color="orange" />
+                
+                {/* NOVO: Card para o Investimento específico de Marketing */}
+                <KpiCard title="Investimento Marketing" value={formatCurrency(totals.marketingInvestment)} icon={<SpeakerphoneIcon />} color="purple" />
+
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
                 <KpiCard title="Total de Vendas" value={totals.sales.toLocaleString('pt-BR')} icon={<Trophy />} color="sky" />
                 <KpiCard title="Total de Leads" value={totals.leads.toLocaleString('pt-BR')} icon={<Target />} color="cyan" />
-                <KpiCard title="CAC Médio" value={formatCurrency(totals.cac)} icon={<CircleDollarSign />} color="orange" />
+                
+                {/* ALTERADO: Este card agora aponta para o CAC Médio Total */}
+                <KpiCard title="CAC Médio" value={formatCurrency(totals.totalCac)} icon={<CircleDollarSign />} color="orange" />
+
+                {/* NOVO: Card para o CAC específico de Marketing */}
+                <KpiCard title="CAC Marketing" value={formatCurrency(totals.marketingCac)} icon={<CircleDollarSign />} color="purple" />
+                
                 <KpiCard title="CPL Médio" value={formatCurrency(totals.cpl)} icon={<TrendingDown />} color="red" />
             </div>
             
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                {/* --- TÍTULO DO GRÁFICO ATUALIZADO --- */}
                 <h3 className="text-lg font-semibold text-white mb-4">Evolução Mensal - Custos vs. Vendas</h3>
                 {data && data.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
-                        {/* --- GRÁFICO ATUALIZADO COM SEGUNDO EIXO Y --- */}
                         <LineChart data={data}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
                             <XAxis dataKey="month" stroke="#9ca3af" />
@@ -59,7 +82,6 @@ const CacAnalysisDashboard = ({ data }) => {
                             />
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}
-                                // --- TOOLTIP ATUALIZADO PARA FORMATAR VENDAS ---
                                 formatter={(value, name) => {
                                     if (name === 'Vendas') {
                                         return [value, name];
@@ -69,9 +91,14 @@ const CacAnalysisDashboard = ({ data }) => {
                                 cursor={{ fill: 'rgba(249, 115, 22, 0.1)' }}
                             />
                             <Legend wrapperStyle={{ color: '#9ca3af' }} />
+
+                            {/* ALTERADO: A linha de CAC e CPL continuam, assumindo que são baseadas no custo total */}
                             <Line yAxisId="left" type="monotone" dataKey="cpl" name="Custo por Lead (CPL)" stroke="#f97316" strokeWidth={2} />
                             <Line yAxisId="left" type="monotone" dataKey="cac" name="Custo por Cliente (CAC)" stroke="#22d3ee" strokeWidth={2} />
-                            {/* --- NOVA LINHA DE VENDAS ADICIONADA --- */}
+                            
+                            {/* NOVO: Linha para o Custo específico de Marketing */}
+                            <Line yAxisId="left" type="monotone" dataKey="investment_marketing" name="Custo Marketing" stroke="#facc15" strokeWidth={2} />
+                            
                             <Line yAxisId="right" type="monotone" dataKey="sales" name="Vendas" stroke="#a78bfa" strokeWidth={2} />
                         </LineChart>
                     </ResponsiveContainer>

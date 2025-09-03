@@ -81,7 +81,10 @@ export default function App() {
             if (isCac) {
                 return {
                     month: obj['Mês/Ano'],
-                    investment: parseCurrency(obj['Investimento Total']),
+                    // Este é o Custo Total GERAL, vindo da nova coluna
+                    investment_total: parseCurrency(obj['Investimento Total']), 
+                    // Este é o custo APENAS de Marketing, vindo da coluna que foi renomeada
+                    investment_marketing: parseCurrency(obj['Investimento Marketing']), 
                     leads: parseIntValue(obj['Total de Leads']),
                     sales: parseIntValue(obj['Total de Vendas']),
                     revenue: parseCurrency(obj['Receita Total']),
