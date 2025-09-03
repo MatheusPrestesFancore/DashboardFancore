@@ -1,3 +1,5 @@
+// src/App.jsx
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardFilters from './components/DashboardFilters';
@@ -8,8 +10,7 @@ import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
 
-
-// URLs das planilhas
+// URLs das planilhas (mantidas como no seu original)
 const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
@@ -20,7 +21,7 @@ const initialFiltersState = {
   startDate: '',
   endDate: '',
   origem: 'Todas',
-  dateFilterType: 'custom_created_date', 
+  dateFilterType: 'custom_created_date',
 };
 
 export default function App() {
@@ -30,12 +31,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activePage, setActivePage] = useState('cac');
-  const [filters, setFilters] = useState(initialFiltersState); 
-  
-  // NOVO: Estado para controlar a visibilidade da sidebar. Começa aberta.
+  const [filters, setFilters] = useState(initialFiltersState);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
-  // NOVO: Função para abrir/fechar a sidebar
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
@@ -45,8 +43,8 @@ export default function App() {
     setFilters(initialFiltersState);
   };
 
+  // ... (toda a sua lógica de useEffect e useMemo continua aqui, sem alterações)
   useEffect(() => {
-    // Sua função parseCsv e o fetch continuam os mesmos...
     const parseCsv = (csvText, isCac = false) => {
         if (!csvText) return [];
         const parseCsvLine = (line) => {
@@ -111,7 +109,6 @@ export default function App() {
   }, []);
 
   const origens = useMemo(() => {
-    // ... seu useMemo de origens (sem alterações) ...
     const tags = new Set();
     allData.forEach(lead => {
       const match = lead.Nome_Lead?.match(/\[(.*?)\]/);
@@ -123,7 +120,6 @@ export default function App() {
   }, [allData]);
   
   const filteredData = useMemo(() => {
-    // ... seu useMemo de filteredData (sem alterações) ...
     const parseDate = (dateString) => {
       if (!dateString || typeof dateString !== 'string') return null;
       const parts = dateString.split(' ')[0].split('/');
@@ -167,7 +163,6 @@ export default function App() {
   }, [allData, filters, activePage]);
 
   const renderPage = () => {
-    // ... seu renderPage (sem alterações) ...
     switch (activePage) {
       case 'automation': return <AutomationDashboard data={filteredData} />;
       case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
@@ -180,7 +175,6 @@ export default function App() {
   };
   
   const getPageTitle = () => {
-    // ... seu getPageTitle (sem alterações) ...
     switch (activePage) {
         case 'automation': return 'Dashboard de Automação';
         case 'funil': return 'Dashboard Funil de Vendas';
@@ -196,27 +190,19 @@ export default function App() {
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen flex font-sans">
-      {/* ALTERADO: Passamos o novo estado 'isSidebarOpen' para o componente Sidebar */}
+    <div className="bg-gray-900 text-white min-h-screen flex font-sans">
       <Sidebar 
         activePage={activePage} 
         setActivePage={handlePageChange}
         isOpen={isSidebarOpen} 
-        toggleSidebar={toggleSidebar}
+        toggleSidebar={toggleSidebar} 
       />
-
       <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
           <header className="mb-8">
-            {/* ALTERADO: Adicionado um div flex para alinhar o título e o novo botão */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
-                    <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
-                </div>
-            </div>
+            <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
+            <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
           </header>
-
           {activePage !== 'ranking' && activePage !== 'cac' &&
             <DashboardFilters 
               data={allData} 
