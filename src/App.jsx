@@ -8,6 +8,8 @@ import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
 import MapaVendasDashboard from './pages/MapaVendasDashboard';
+// NOVO: Importe a nova página de Visão Geral
+import VisaoGeralDashboard from './pages/VisaoGeralDashboard';
 import { Bars3Icon } from '@heroicons/react/24/outline';
 
 // URLs das planilhas
@@ -32,7 +34,8 @@ export default function App() {
   const [mapData, setMapData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState('cac');
+  // ALTERADO: A página inicial agora é 'overview'
+  const [activePage, setActivePage] = useState('overview');
   const [filters, setFilters] = useState(initialFiltersState); 
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
@@ -42,7 +45,10 @@ export default function App() {
 
   const handlePageChange = (page) => {
     setActivePage(page);
-    setFilters(initialFiltersState);
+    // Não reseta os filtros na página de visão geral
+    if (page !== 'overview') {
+      setFilters(initialFiltersState);
+    }
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
@@ -189,6 +195,8 @@ export default function App() {
 
   const renderPage = () => {
     switch (activePage) {
+      // NOVO: Renderiza a página de Visão Geral
+      case 'overview': return <VisaoGeralDashboard allData={allData} cacData={cacData} mapData={mapData} />;
       case 'automation': return <AutomationDashboard data={filteredData} />;
       case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
       case 'sdr': return <SdrPerformanceDashboard data={filteredData} />;
@@ -196,12 +204,14 @@ export default function App() {
       case 'ranking': return <RankingSdrDashboard allData={allData} filters={filters} />;
       case 'cac': return <CacAnalysisDashboard data={cacData} />;
       case 'map': return <MapaVendasDashboard data={mapData} />;
-      default: return <AutomationDashboard data={filteredData} />;
+      default: return <VisaoGeralDashboard allData={allData} cacData={cacData} mapData={mapData} />;
     }
   };
   
   const getPageTitle = () => {
     switch (activePage) {
+        // NOVO: Título para a página de Visão Geral
+        case 'overview': return 'Visão Geral da Expansão';
         case 'automation': return 'Dashboard de Automação';
         case 'funil': return 'Dashboard Funil de Vendas';
         case 'sdr': return 'Dashboard de Performance SDR';
@@ -224,7 +234,6 @@ export default function App() {
         isOpen={isSidebarOpen} 
         toggleSidebar={toggleSidebar} 
       />
-      {/* ALTERADO: A margin-left foi removida para corrigir o layout do desktop */}
       <main className="flex-1 overflow-y-auto">
         <div className="p-4 sm:p-8">
             <div className="max-w-7xl mx-auto">
@@ -241,7 +250,8 @@ export default function App() {
                 <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
               </header>
 
-              {activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' &&
+              {/* ALTERADO: Esconde os filtros na página de Visão Geral */}
+              {activePage !== 'overview' && activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' &&
                 <DashboardFilters 
                   data={allData} 
                   filters={filters} 
