@@ -57,21 +57,47 @@ const SdrPerformanceDashboard = ({ data }) => {
 
   return (
     <div className="space-y-8">
-      {/* Nenhuma alteração necessária aqui, o grid já é responsivo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KpiCard title="Lead > Qualificado" value={taxaQualificacao} unit="%" icon={<UserCheck />} color="cyan" />
-        <KpiCard title="Qualificado > Agendado" value={taxaAgendamento} unit="%" icon={<CalendarCheck />} color="orange" />
-        <KpiCard title="Agendado > Realizado" value={taxaComparecimento} unit="%" icon={<TrendingUp />} color="yellow" />
-        <KpiCard title="Tempo Médio Qualif." value={timeToQualify} unit="dias" icon={<Clock />} color="sky" />
+        {/* ALTERADO: Adicionados tooltips com as fórmulas */}
+        <KpiCard 
+          title="Lead > Qualificado" 
+          value={taxaQualificacao} 
+          unit="%" 
+          icon={<UserCheck />} 
+          color="cyan"
+          tooltipText="Percentual de leads que foram qualificados. Fórmula: (Qualificados / Leads Totais) * 100."
+        />
+        <KpiCard 
+          title="Qualificado > Agendado" 
+          value={taxaAgendamento} 
+          unit="%" 
+          icon={<CalendarCheck />} 
+          color="orange"
+          tooltipText="Percentual de leads qualificados que tiveram uma reunião agendada. Fórmula: (Agendados / Qualificados) * 100."
+        />
+        <KpiCard 
+          title="Agendado > Realizado" 
+          value={taxaComparecimento} 
+          unit="%" 
+          icon={<TrendingUp />} 
+          color="yellow"
+          tooltipText="Taxa de comparecimento. Percentual de reuniões agendadas que foram efetivamente realizadas. Fórmula: (Realizadas / Agendadas) * 100."
+        />
+        <KpiCard 
+          title="Tempo Médio Qualif." 
+          value={timeToQualify} 
+          unit="dias" 
+          icon={<Clock />} 
+          color="sky"
+          tooltipText="Tempo médio em dias entre a data de criação de um lead e a data do seu primeiro contato qualificado."
+        />
       </div>
-      {/* ALTERADO: Padding responsivo */}
       <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
           <h3 className="text-lg font-semibold text-white mb-4 flex items-center"><Users size={20} className="mr-2 text-orange-500"/> Ranking de SDRs (por Agendamentos)</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-gray-400">
               <thead className="text-xs text-gray-300 uppercase bg-gray-700">
                 <tr>
-                  {/* ALTERADO: Padding horizontal das células reduzido em telas pequenas (px-2) */}
                   <th className="px-2 sm:px-4 py-3">Pos.</th>
                   <th className="px-2 sm:px-4 py-3">SDR</th>
                   <th className="px-2 sm:px-4 py-3 text-center">Leads Trab.</th>
@@ -98,3 +124,4 @@ const SdrPerformanceDashboard = ({ data }) => {
 };
 
 export default SdrPerformanceDashboard;
+

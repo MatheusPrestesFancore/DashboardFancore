@@ -25,21 +25,21 @@ const CacAnalysisDashboard = ({ data }) => {
 
         const totalCac = sales > 0 ? totalInvestment / sales : 0;
         const marketingCac = sales > 0 ? marketingInvestment / sales : 0;
-        const cpl = leads > 0 ? totalInvestment / leads : 0;
+        const cpl = sales > 0 ? marketingInvestment / leads : 0;
         
         return { totalInvestment, marketingInvestment, leads, sales, totalCac, marketingCac, cpl, revenue };
     }, [data]);
 
     return (
         <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* ALTERADO: As classes do grid foram ajustadas para dar mais espaço aos cards. */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <KpiCard title="Investimento Total" value={formatCurrency(totals.totalInvestment)} icon={<DollarSign />} color="orange" />
                 <KpiCard title="Investimento Marketing" value={formatCurrency(totals.marketingInvestment)} icon={<Megaphone />} color="purple" />
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
                 <KpiCard title="Total de Vendas" value={totals.sales.toLocaleString('pt-BR')} icon={<Trophy />} color="sky" />
                 <KpiCard title="Total de Leads" value={totals.leads.toLocaleString('pt-BR')} icon={<Target />} color="cyan" />
                 
-                {/* ALTERADO: Adicionada a propriedade 'tooltipText' com a explicação */}
                 <KpiCard 
                   title="CAC Médio" 
                   value={formatCurrency(totals.totalCac)} 
@@ -48,7 +48,6 @@ const CacAnalysisDashboard = ({ data }) => {
                   tooltipText="Custo de Aquisição por Cliente (Geral). Fórmula: Investimento Total / Total de Vendas."
                 />
                 
-                {/* ALTERADO: Adicionada a propriedade 'tooltipText' com a explicação */}
                 <KpiCard 
                   title="CAC Marketing" 
                   value={formatCurrency(totals.marketingCac)} 
@@ -57,7 +56,6 @@ const CacAnalysisDashboard = ({ data }) => {
                   tooltipText="Custo de Aquisição por Cliente (Marketing). Fórmula: Investimento Marketing / Total de Vendas."
                 />
                 
-                {/* ALTERADO: Adicionada a propriedade 'tooltipText' com a explicação */}
                 <KpiCard 
                   title="CPL Médio" 
                   value={formatCurrency(totals.cpl)} 
@@ -103,7 +101,7 @@ const CacAnalysisDashboard = ({ data }) => {
                             <Line yAxisId="left" type="monotone" dataKey="cpl" name="CPL" stroke="#f97316" strokeWidth={2} />
                             <Line yAxisId="left" type="monotone" dataKey="cac" name="CAC" stroke="#22d3ee" strokeWidth={2} />
                             <Line yAxisId="left" type="monotone" dataKey="investment_marketing" name="Custo MKT" stroke="#facc15" strokeWidth={2} />
-                                <Line yAxisId="right" type="monotone" dataKey="sales" name="Vendas" stroke="#a78bfa" strokeWidth={2} />
+                            <Line yAxisId="right" type="monotone" dataKey="sales" name="Vendas" stroke="#a78bfa" strokeWidth={2} />
                         </LineChart>
                     </ResponsiveContainer>
                 ) : (

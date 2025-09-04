@@ -16,10 +16,8 @@ const CloserPerformanceDashboard = ({ data }) => {
 
   return (
     <div className="space-y-8">
-      {/* ALTERADO: Padding ajustado para p-4 em telas pequenas e sm:p-6 em maiores */}
       <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Visão Geral - Closer</h3>
-        {/* Nenhuma alteração necessária no grid, ele já é responsivo */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <KpiCard title="Reuniões Realizadas" value={realizados} color="yellow" small />
           <KpiCard title="COFs Enviadas" value={cofEnviadas} color="cyan" small />
@@ -27,20 +25,42 @@ const CloserPerformanceDashboard = ({ data }) => {
           <KpiCard title="Vendas" value={vendas} color="green" small />
         </div>
       </div>
-      {/* ALTERADO: Padding ajustado para p-4 em telas pequenas e sm:p-6 em maiores */}
       <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
         <h3 className="text-lg font-semibold text-white mb-4">Taxas de Conversão - Closer</h3>
-        {/* Nenhuma alteração necessária no grid, ele já é responsivo */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <KpiCard title="Realizado > COF Enviada" value={taxaEnvioCof} unit="%" icon={<FileText />} color="cyan" />
-          <KpiCard title="COF Enviada > COF Assinada" value={taxaAssinaturaCof} unit="%" icon={<FileCheck />} color="orange" />
-          <KpiCard title="COF Assinada > Venda" value={taxaFechamento} unit="%" icon={<DollarSign />} color="green" />
+          {/* ALTERADO: Adicionado tooltipText com a fórmula */}
+          <KpiCard 
+            title="Realizado > COF Enviada" 
+            value={taxaEnvioCof} 
+            unit="%" 
+            icon={<FileText />} 
+            color="cyan" 
+            tooltipText="Percentual de reuniões realizadas que resultaram no envio de uma COF. Fórmula: (COFs Enviadas / Reuniões Realizadas) * 100."
+          />
+          {/* ALTERADO: Adicionado tooltipText com a fórmula */}
+          <KpiCard 
+            title="COF Enviada > COF Assinada" 
+            value={taxaAssinaturaCof} 
+            unit="%" 
+            icon={<FileCheck />} 
+            color="orange" 
+            tooltipText="Percentual de COFs enviadas que foram assinadas. Fórmula: (COFs Assinadas / COFs Enviadas) * 100."
+          />
+          {/* ALTERADO: Adicionado tooltipText com a fórmula */}
+          <KpiCard 
+            title="COF Assinada > Venda" 
+            value={taxaFechamento} 
+            unit="%" 
+            icon={<DollarSign />} 
+            color="green" 
+            tooltipText="Percentual de COFs assinadas que se converteram em vendas. Fórmula: (Vendas / COFs Assinadas) * 100."
+          />
         </div>
       </div>
-      {/* O componente CloserEvolutionChart também precisará de ajustes internos para ser responsivo, similar ao que fizemos nos outros gráficos. */}
       <CloserEvolutionChart data={data} />
     </div>
   );
 };
 
 export default CloserPerformanceDashboard;
+
