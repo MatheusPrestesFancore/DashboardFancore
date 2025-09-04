@@ -8,15 +8,16 @@ import FunilDeVendasDashboard from './pages/FunilDeVendasDashboard';
 import RankingSdrDashboard from './pages/RankingSdrDashboard';
 import CacAnalysisDashboard from './pages/CacAnalysisDashboard';
 import MapaVendasDashboard from './pages/MapaVendasDashboard';
-// NOVO: Importe a nova página de Visão Geral
 import VisaoGeralDashboard from './pages/VisaoGeralDashboard';
 import { Bars3Icon } from '@heroicons/react/24/outline';
+import { Tooltip } from 'react-tooltip'; // Import do Tooltip
 
 // URLs das planilhas
 const GOOGLE_SHEET_LEADS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=1495728090&single=true&output=csv';
 const GOOGLE_SHEET_GOALS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=515919224&single=true&output=csv';
 const GOOGLE_SHEET_CAC_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=855119221&single=true&output=csv';
 const GOOGLE_SHEET_MAP_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT8micyxeetXOwd7DswczU-nhMaBO7KCA0rHsTAgoAkJMQTWrcJHkV4aSRQ_I-cfctWM6cNToluCzJ0/pub?gid=469774215&single=true&output=csv';
+
 
 const initialFiltersState = {
   responsavel: 'Todos',
@@ -34,7 +35,6 @@ export default function App() {
   const [mapData, setMapData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // ALTERADO: A página inicial agora é 'overview'
   const [activePage, setActivePage] = useState('overview');
   const [filters, setFilters] = useState(initialFiltersState); 
   const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -45,10 +45,7 @@ export default function App() {
 
   const handlePageChange = (page) => {
     setActivePage(page);
-    // Não reseta os filtros na página de visão geral
-    if (page !== 'overview') {
-      setFilters(initialFiltersState);
-    }
+    setFilters(initialFiltersState);
     if (window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
@@ -195,7 +192,6 @@ export default function App() {
 
   const renderPage = () => {
     switch (activePage) {
-      // NOVO: Renderiza a página de Visão Geral
       case 'overview': return <VisaoGeralDashboard allData={allData} cacData={cacData} mapData={mapData} />;
       case 'automation': return <AutomationDashboard data={filteredData} />;
       case 'funil': return <FunilDeVendasDashboard data={filteredData} goals={goalsData} />;
@@ -210,18 +206,17 @@ export default function App() {
   
   const getPageTitle = () => {
     switch (activePage) {
-        // NOVO: Título para a página de Visão Geral
-        case 'overview': return 'Visão Geral da Expansão';
-        case 'automation': return 'Dashboard de Automação';
-        case 'funil': return 'Dashboard Funil de Vendas';
-        case 'sdr': return 'Dashboard de Performance SDR';
-        case 'closer': return 'Dashboard de Performance Closer';
-        case 'ranking': return 'Ranking de SDRs';
-        case 'cac': return 'Dashboard de Análise de CAC';
-        case 'map': return 'Mapa de Vendas';
-        default: return 'Dashboard de Vendas';
+      case 'overview': return 'Visão Geral';
+      case 'automation': return 'Dashboard de Automação';
+      case 'funil': return 'Dashboard Funil de Vendas';
+      case 'sdr': return 'Dashboard de Performance SDR';
+      case 'closer': return 'Dashboard de Performance Closer';
+      case 'ranking': return 'Ranking de SDRs';
+      case 'cac': return 'Dashboard de Análise de CAC';
+      case 'map': return 'Mapa de Vendas';
+      default: return 'Dashboard de Vendas';
     }
-  }
+  };
 
   if (loading) return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Carregando dados...</div>;
   if (error) return <div className="bg-gray-900 text-red-400 min-h-screen flex items-center justify-center p-8 text-center">{error}</div>;
@@ -234,24 +229,20 @@ export default function App() {
         isOpen={isSidebarOpen} 
         toggleSidebar={toggleSidebar} 
       />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto w-full">
         <div className="p-4 sm:p-8">
             <div className="max-w-7xl mx-auto">
-              
               <header className="mb-8 lg:hidden flex justify-between items-center">
                   <h1 className="text-2xl font-bold text-white">{getPageTitle()}</h1>
                   <button onClick={toggleSidebar} className="p-2">
                       <Bars3Icon className="h-6 w-6 text-white"/>
                   </button>
               </header>
-
               <header className="mb-8 hidden lg:block">
                 <h1 className="text-3xl font-bold text-white">{getPageTitle()}</h1>
                 <p className="text-gray-400">Análise de performance da equipe, automações e custos.</p>
               </header>
-
-              {/* ALTERADO: Esconde os filtros na página de Visão Geral */}
-              {activePage !== 'overview' && activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' &&
+              {activePage !== 'ranking' && activePage !== 'cac' && activePage !== 'map' && activePage !== 'overview' &&
                 <DashboardFilters 
                   data={allData} 
                   filters={filters} 
@@ -263,6 +254,9 @@ export default function App() {
             </div>
         </div>
       </main>
+      
+      {/* ALTERADO: Adicionada a propriedade delayShow={1000} para o atraso de 1 segundo */}
+      <Tooltip id="kpi-tooltip" delayShow={1000} />
     </div>
   );
 }
