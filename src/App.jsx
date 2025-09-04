@@ -224,7 +224,8 @@ export default function App() {
         isOpen={isSidebarOpen} 
         toggleSidebar={toggleSidebar} 
       />
-      <main className={`flex-1 overflow-y-auto transition-all duration-300 ease-in-out ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'}`}>
+      {/* ALTERADO: A margin-left foi removida para corrigir o layout do desktop */}
+      <main className="flex-1 overflow-y-auto">
         <div className="p-4 sm:p-8">
             <div className="max-w-7xl mx-auto">
               
