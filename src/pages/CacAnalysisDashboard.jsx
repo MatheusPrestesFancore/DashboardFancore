@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import KpiCard from '../components/KpiCard';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { DollarSign, Target, TrendingUp, TrendingDown, CircleDollarSign, Trophy, Megaphone } from 'lucide-react';
 
 const CacAnalysisDashboard = ({ data }) => {
@@ -32,43 +32,62 @@ const CacAnalysisDashboard = ({ data }) => {
 
     return (
         <div className="space-y-8">
-            {/* ALTERADO: Grid ajustado para sm:grid-cols-2 e lg:grid-cols-4 para melhor adaptação */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <KpiCard title="Investimento Total" value={formatCurrency(totals.totalInvestment)} icon={<DollarSign />} color="orange" />
                 <KpiCard title="Investimento Marketing" value={formatCurrency(totals.marketingInvestment)} icon={<Megaphone />} color="purple" />
                 <KpiCard title="Receita Total" value={formatCurrency(totals.revenue)} icon={<TrendingUp />} color="green" />
                 <KpiCard title="Total de Vendas" value={totals.sales.toLocaleString('pt-BR')} icon={<Trophy />} color="sky" />
                 <KpiCard title="Total de Leads" value={totals.leads.toLocaleString('pt-BR')} icon={<Target />} color="cyan" />
-                <KpiCard title="CAC Médio" value={formatCurrency(totals.totalCac)} icon={<CircleDollarSign />} color="orange" />
-                <KpiCard title="CAC Marketing" value={formatCurrency(totals.marketingCac)} icon={<CircleDollarSign />} color="purple" />
-                <KpiCard title="CPL Médio" value={formatCurrency(totals.cpl)} icon={<TrendingDown />} color="red" />
+                
+                {/* ALTERADO: Adicionada a propriedade 'tooltipText' com a explicação */}
+                <KpiCard 
+                  title="CAC Médio" 
+                  value={formatCurrency(totals.totalCac)} 
+                  icon={<CircleDollarSign />} 
+                  color="orange" 
+                  tooltipText="Custo de Aquisição por Cliente (Geral). Fórmula: Investimento Total / Total de Vendas."
+                />
+                
+                {/* ALTERADO: Adicionada a propriedade 'tooltipText' com a explicação */}
+                <KpiCard 
+                  title="CAC Marketing" 
+                  value={formatCurrency(totals.marketingCac)} 
+                  icon={<CircleDollarSign />} 
+                  color="purple"
+                  tooltipText="Custo de Aquisição por Cliente (Marketing). Fórmula: Investimento Marketing / Total de Vendas."
+                />
+                
+                {/* ALTERADO: Adicionada a propriedade 'tooltipText' com a explicação */}
+                <KpiCard 
+                  title="CPL Médio" 
+                  value={formatCurrency(totals.cpl)} 
+                  icon={<TrendingDown />} 
+                  color="red"
+                  tooltipText="Custo por Lead (Geral). Fórmula: Investimento Total / Total de Leads."
+                />
             </div>
             
-            {/* ALTERADO: Padding responsivo (p-4 no mobile, sm:p-6 em telas maiores) */}
             <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
                 <h3 className="text-lg font-semibold text-white mb-4">Evolução Mensal - Custos vs. Vendas</h3>
                 {data && data.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={data} margin={{ top: 5, right: 5, left: -25, bottom: 5 }}>
+                        <LineChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" />
-                            {/* ALTERADO: Tamanho da fonte dos rótulos do eixo X */}
                             <XAxis dataKey="month" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                            {/* ALTERADO: Tamanho da fonte dos rótulos e do título do eixo Y esquerdo */}
                             <YAxis 
                                 yAxisId="left"
-                                tickFormatter={(value) => `R$ ${Intl.NumberFormat('pt-BR', { notation: 'compact' }).format(value)}`}
+                                tickFormatter={(value) => `R$${(value/1000)}k`}
                                 stroke="#9ca3af" 
                                 tick={{ fontSize: 12 }}
-                                label={{ value: 'Custo (R$)', angle: -90, position: 'insideLeft', fill: '#9ca3af', fontSize: 14, dy: 60 }}
+                                label={{ value: 'Custo (R$)', angle: -90, position: 'insideLeft', fill: '#9ca3af' }}
                             />
-                            {/* ALTERADO: Tamanho da fonte dos rótulos e do título do eixo Y direito */}
                             <YAxis 
                                 yAxisId="right" 
                                 orientation="right" 
                                 stroke="#a78bfa"
                                 allowDecimals={false}
                                 tick={{ fontSize: 12 }}
-                                label={{ value: 'Vendas', angle: 90, position: 'insideRight', fill: '#a78bfa', fontSize: 14, dy: -60 }}
+                                label={{ value: 'Vendas', angle: 90, position: 'insideRight', fill: '#a78bfa' }}
                             />
                             <Tooltip 
                                 contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', color: '#e5e7eb' }}
@@ -80,11 +99,11 @@ const CacAnalysisDashboard = ({ data }) => {
                                 }}
                                 cursor={{ fill: 'rgba(249, 115, 22, 0.1)' }}
                             />
-                            <Legend wrapperStyle={{ color: '#9ca3af' }} />
-                            <Line yAxisId="left" type="monotone" dataKey="cpl" name="Custo por Lead (CPL)" stroke="#f97316" strokeWidth={2} />
-                            <Line yAxisId="left" type="monotone" dataKey="cac" name="Custo por Cliente (CAC)" stroke="#22d3ee" strokeWidth={2} />
-                            <Line yAxisId="left" type="monotone" dataKey="investment_marketing" name="Custo Marketing" stroke="#facc15" strokeWidth={2} />
-                            <Line yAxisId="right" type="monotone" dataKey="sales" name="Vendas" stroke="#a78bfa" strokeWidth={2} />
+                            <Legend wrapperStyle={{ color: '#9ca3af', fontSize: '12px' }} />
+                            <Line yAxisId="left" type="monotone" dataKey="cpl" name="CPL" stroke="#f97316" strokeWidth={2} />
+                            <Line yAxisId="left" type="monotone" dataKey="cac" name="CAC" stroke="#22d3ee" strokeWidth={2} />
+                            <Line yAxisId="left" type="monotone" dataKey="investment_marketing" name="Custo MKT" stroke="#facc15" strokeWidth={2} />
+                                <Line yAxisId="right" type="monotone" dataKey="sales" name="Vendas" stroke="#a78bfa" strokeWidth={2} />
                         </LineChart>
                     </ResponsiveContainer>
                 ) : (
@@ -96,3 +115,4 @@ const CacAnalysisDashboard = ({ data }) => {
 };
 
 export default CacAnalysisDashboard;
+
