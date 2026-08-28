@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.tooltip-shift-right {
+  transform: translateX(90px) !important;
+}
